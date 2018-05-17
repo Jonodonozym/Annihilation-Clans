@@ -1,0 +1,9 @@
+sql:
+  host: 127.0.0.1
+  database: knol
+  user: enzo
+  pass: 12345
+  port: 3306
+lobbyMode: true
+blockedwords:
+   - 'aids'

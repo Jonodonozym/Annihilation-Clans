@@ -1,0 +1,7 @@
+name: Clans
+author: Arjenpro
+version: 0.1
+main: org.guildcraft.annihilation.clans.Clans
+commands:
+    clan:
+       aliases: [c,clans]
