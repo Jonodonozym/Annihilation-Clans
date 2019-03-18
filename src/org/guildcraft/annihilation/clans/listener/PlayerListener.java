@@ -1,7 +1,5 @@
 package org.guildcraft.annihilation.clans.listener;
 
-import java.util.ArrayList;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,8 +8,10 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.guildcraft.annihilation.clans.Clan;
 import org.guildcraft.annihilation.clans.Clans;
 import org.guildcraft.annihilation.clans.command.ClanCommand;
+import org.guildcraft.annihilation.clans.manager.ClansDatabase;
 import org.guildcraft.annihilation.gcStatsHook.ExperienceManager;
 
 /**
@@ -19,226 +19,144 @@ import org.guildcraft.annihilation.gcStatsHook.ExperienceManager;
  */
 public class PlayerListener implements Listener {
 
-
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		Bukkit.getScheduler().runTaskAsynchronously(Clans.getInstance(), () -> {
+			final Clan clan = ClansDatabase.getInstance().getClan(e.getPlayer());
+			if (clan == null)
+				return;
 
-		if (Clans.instance.getClansManager().hasClan(e.getPlayer().getName())) {
-			String clan = Clans.instance.getClansManager().getClan(e.getPlayer().getName());
-
-			if (!Clans.instance.getLocalClanManager().online.containsKey(clan)) {
-				Clans.instance.getLocalClanManager().online.put(clan.toLowerCase(), new ArrayList<Player>());
-			}
-			ArrayList<Player> local = Clans.instance.getLocalClanManager().online.get(clan.toLowerCase());
-			local.add(e.getPlayer());
-			Clans.instance.getLocalClanManager().online.put(clan.toLowerCase(), local);
-			if (Clans.instance.getLocalClanManager().getLocalData(clan) == null) {
-				Clans.instance.getLocalClanManager().createLocalData(clan);
-			}
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Clans.instance, new Runnable() {
-				@Override
-				public void run() {
-					if (!Clans.instance.getLocalClanManager()
-							.getLocalData(Clans.instance.getClansManager().getClan(e.getPlayer().getName())).getMotd()
-							.equals("null"))
-						e.getPlayer()
-								.sendMessage("Â§9Clan Info> Â§e " + Clans.instance.getLocalClanManager()
-										.getLocalData(Clans.instance.getClansManager().getClan(e.getPlayer().getName()))
-										.getMotd().replaceAll("&", "Â§"));
-
-				}
+			clan.getOnline().add(e.getPlayer());
+			Bukkit.getScheduler().runTaskLater(Clans.getInstance(), () -> {
+				e.getPlayer().sendMessage("§9Clan Info> §e " + clan.getMotd().replaceAll("&", "§"));
 			}, 20 * 4);
 
-			Clans.instance.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
-					"Â§eThe player " + e.getPlayer().getName() + " joined");
-		}
-
+			Clans.getInstance().getChatManager().sendChatMessageToClan("SYSTEM", clan,
+					"§eThe player " + e.getPlayer().getName() + " joined");
+		});
 	}
-
-
 
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent e) {
+		Player player = e.getPlayer();
 
-		if (ClanCommand.disband.containsKey(e.getPlayer().getName())) {
+		if (ClanCommand.disband.containsKey(player)) {
+			Clan clan = ClansDatabase.getInstance().getClan(player);
 			if (e.getMessage().toLowerCase().equals("yes")) {
+				String commandLabel = ClanCommand.disband.get(player).split("_")[0];
 
-				if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("disband")) {
-					Player p = e.getPlayer();
-					String clan = ClanCommand.disband.get(p.getName()).split("_")[1];
-					p.sendMessage("Â§9Clans> Â§7Removing all members from your clan.. Â§eProgress: 0%");
-					Clans.instance.getClansManager().disbandClan(clan);
-					p.sendMessage("Â§9Clans> Â§7Disbanded your clan");
-					ClanCommand.disband.remove(p.getName());
-					e.setCancelled(true);
-
+				if (commandLabel.equals("disband")) {
+					clan.disband();
+					player.sendMessage("§9Clans> §7Disbanded your clan");
 				}
-				else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("tag")) {
+				else if (commandLabel.equals("tag")) {
+					String tag = ClanCommand.disband.get(player).split("_")[1].split("-")[0];
+					int price = Integer.parseInt(ClanCommand.disband.get(player).split("_")[1].split("-")[1]);
 
-					Player p = e.getPlayer();
-					System.out.print(ClanCommand.disband.get(e.getPlayer().getName()));
-					System.out.print((ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[0]);
-					System.out.print((ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[1]);
+					clan.setCoins(clan.getCoins() - price);
+					clan.setTag(tag);
+					clan.save();
 
-					String tag = (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[0];
-					String price = (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[1];
-
-					System.out.print(tag);
-					System.out.print(price);
-
-
-					String clan = Clans.instance.getClansManager().getClan(p.getName());
-					Clans.instance.getClansManager().removeClanCoins(Integer.parseInt(price), clan);
-					Clans.instance.getClansManager().setTag(clan, tag);
-
-					p.sendMessage("Â§9Clans> Â§7Removed Â§e" + price + " Â§7Clan Coins from your Clan Wallet");
-					p.sendMessage("Â§9Clans> Â§7Purchase complete. Your tag has been updated to Â§e" + tag);
-					Clans.log(p.getName() + " bought clan tag " + tag + " for " + price + " coins");
-
-					ClanCommand.disband.remove(p.getName());
-					e.setCancelled(true);
+					player.sendMessage("§9Clans> §7Removed §e" + price + " §7Clan Coins from your Clan Wallet");
+					player.sendMessage("§9Clans> §7PYour tag has been updated to §e" + tag);
+					Clans.log(player.getName() + " bought clan tag " + tag + " for " + price + " coins");
 				}
-				else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("motd")) {
+				else if (commandLabel.equals("motd")) {
+					String motd = ClanCommand.disband.get(player).split("_")[1].split("-")[0];
+					int price = Integer.parseInt(ClanCommand.disband.get(player).split("_")[1].split("-")[1]);
 
-					Player p = e.getPlayer();
-
-					String motd = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[0];
-					int price = Integer
-							.parseInt(ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[1]);
-
-					String clan = Clans.instance.getClansManager().getClan(p.getName());
-					Clans.instance.getClansManager().removeClanCoins(price, clan);
-					Clans.instance.getClansManager().setMOTD(clan, motd);
-
-					p.sendMessage("Â§9Clans> Â§7Removed Â§e" + price + " Â§7Clan Coins from your Clan Wallet");
-					p.sendMessage("Â§9Clans> Â§7Purchase complete. Your MOTD has been updated to Â§e" + motd);
+					clan.setCoins(clan.getCoins() - price);
+					clan.setMotd(motd);
+					clan.save();
 
 					if (price > 0) {
-						Clans.log(p.getName() + " bought clan motd " + motd + " for " + price + " coins");
-
+						player.sendMessage("§9Clans> §7Removed §e" + price + " §7Clan Coins from your Clan Wallet");
+						Clans.log(player.getName() + " bought clan motd " + motd + " for " + price + " coins");
 					}
-
-					ClanCommand.disband.remove(p.getName());
-					e.setCancelled(true);
-
+					player.sendMessage("§9Clans> §7Purchase complete. Your MOTD has been updated to §e" + motd);
 				}
-				else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("transfer")) {
-					Player p = e.getPlayer();
+				else if (commandLabel.equals("transfer")) {
+					String to = ClanCommand.disband.get(player).split("_")[1].split("-")[0];
+					clan.transfer(to);
 
+					player.sendMessage("§9Clans> §7Transferring your clan to the player §e" + to);
+					player.sendMessage("§9Clans> §7You are now in the §eMEMBER §7group of your clan");
 
-					String to = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[0];
-					String clan = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[1];
-
-
-					p.sendMessage("Â§9Clans> Â§7Transferring your clan to the player Â§e" + to);
-					p.sendMessage("Â§9Clans> Â§7Your clan has been transferred. The player Â§e" + to
-							+ " has the leadership now.");
-					p.sendMessage("Â§9Clans> Â§7You are now in the Â§eMEMBER Â§7group of your clan");
-
-					Clans.instance.getChatManager().sendChatMessageToClan("SYSTEM", clan,
-							"Â§7The leadership went from Â§e" + p.getName() + "Â§7 to Â§e" + to);
-					Clans.instance.getChatManager().sendMessage(to,
-							"Â§9Clans> Â§7You are now the owner of the clan Â§e" + clan);
-
-
-					Clans.instance.getClansManager().transfer(clan, to);
-
-					ClanCommand.disband.remove(p.getName());
-					e.setCancelled(true);
-
-
+					Clans.getInstance().getChatManager().sendChatMessageToClan("SYSTEM", clan,
+							"§7The leadership went from §e" + player.getName() + "§7 to §e" + to);
+					Clans.getInstance().getChatManager().sendMessage(to,
+							"§9Clans> §7You are now the owner of the clan §e" + clan);
 				}
-				else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("create")) {
+				else if (commandLabel.equals("create")) {
+					String name = ClanCommand.disband.get(player).split("_")[1].split("-")[0];
+					int price = Integer.parseInt(ClanCommand.disband.get(player).split("_")[1].split("-")[1]);
 
-					Player p = e.getPlayer();
+					ClansDatabase.getInstance().createClan(name, player);
+					player.sendMessage(
+							"§9Clans> §aCreated clan §7" + name + "§a. Invite members with §7/clan invite <player>");
+					player.sendMessage(
+							"§9Clans> §aYou are moved in the group §eÂ§lOWNER §aof the clan §7" + name + "§a");
 
-					String name = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[0];
-					int price = Integer
-							.parseInt(ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[1]);
+					player.sendMessage("§9Clans> §7Removed §b" + price + "XP §7from your Annihilation Wallet");
 
-					Clans.instance.getClansManager().createClan(name, p);
-					p.sendMessage("Â§9Clans> Â§aCreated clan Â§7" + name
-							+ "Â§a. Invite members with Â§7/clan invite <player>");
-					p.sendMessage(
-							"Â§9Clans> Â§aYou are moved in the group Â§eÂ§lOWNER Â§aof the clan Â§7" + name + "Â§a");
+					ExperienceManager.getInstance().removeXP(player, price);
 
-					p.sendMessage("Â§9Clans> Â§7Removed Â§b" + price + "XP Â§7from your Annihilation Wallet");
-
-					ExperienceManager.getInstance().removeXP(p, price);
-
-					Clans.log(p.getName() + " created clan " + name + " for " + price + " XP");
-
-					ClanCommand.disband.remove(p.getName());
-					e.setCancelled(true);
-
-
+					Clans.log(player.getName() + " created clan " + name + " for " + price + " XP");
 				}
-			}
-		}
-		else if (InventoryListener.slots.containsKey(e.getPlayer().getName())) {
-			if (e.getMessage().toLowerCase().equals("yes")) {
 
-				Player p = e.getPlayer();
-
-				int newslots = Integer.parseInt(InventoryListener.slots.get(e.getPlayer().getName()).split("-")[0]);
-				int price = Integer.parseInt(InventoryListener.slots.get(e.getPlayer().getName()).split("-")[1]);
-
-				String clan = Clans.instance.getClansManager().getClan(p.getName());
-				Clans.instance.getClansManager().removeClanCoins(price, clan);
-				Clans.instance.getClansManager().setSlots(newslots, clan);
-
-				p.sendMessage("Â§9Clans> Â§7Removed Â§e" + price + " Â§7Clan Coins from your Clan Wallet");
-				p.sendMessage("Â§9Clans> Â§7Purchase complete. Your slots has been updated to Â§e" + newslots);
-
-				InventoryListener.slots.remove(e.getPlayer().getName());
+				ClanCommand.disband.remove(player);
 				e.setCancelled(true);
-
 			}
-
-
 		}
 
+		else if (InventoryListener.slotsMap.containsKey(e.getPlayer().getName())) {
+			if (e.getMessage().toLowerCase().equals("yes")) {
+				Clan clan = ClansDatabase.getInstance().getClan(player);
 
+				int newslots = Integer.parseInt(InventoryListener.slotsMap.get(e.getPlayer().getName()).split("-")[0]);
+				int price = Integer.parseInt(InventoryListener.slotsMap.get(e.getPlayer().getName()).split("-")[1]);
 
-		if (ClanCommand.chatMode.contains(e.getPlayer())) {
-			if (!Clans.instance.getClansManager().hasClan(e.getPlayer().getName().toLowerCase())) {
+				clan.setCoins(clan.getCoins() - price);
+				clan.setSlots(newslots);
+				clan.save();
+
+				player.sendMessage("§9Clans> §7Removed §e" + price + " §7Clan Coins from your Clan Wallet");
+				player.sendMessage("§9Clans> §7Purchase complete. Your slots has been updated to §e" + newslots);
+
+				InventoryListener.slotsMap.remove(e.getPlayer().getName());
+				e.setCancelled(true);
+			}
+		}
+
+		if (e.getMessage().startsWith("@") || ClanCommand.chatMode.contains(e.getPlayer())) {
+			e.setMessage(e.getMessage().replaceFirst("@+", ""));
+			Clan clan = ClansDatabase.getInstance().getClan(player);
+			if (clan == null) {
 				ClanCommand.chatMode.remove(e.getPlayer());
 				return;
 			}
-			String clan = Clans.instance.getClansManager().getClan(e.getPlayer().getName());
 
-			Clans.instance.getChatManager().sendChatMessageToClan(e.getPlayer().getName(), clan, e.getMessage());
+			Clans.getInstance().getChatManager().sendChatMessageToClan(e.getPlayer().getName(), clan, e.getMessage());
 
 			e.setCancelled(true);
 		}
 	}
 
-
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
-		if (Clans.instance.getClansManager().hasClan(e.getPlayer().getName())) {
-			String clan = Clans.instance.getClansManager().getClan(e.getPlayer().getName());
-			ArrayList<Player> local = Clans.instance.getLocalClanManager().online.get(clan);
-			local.remove(e.getPlayer());
-			Clans.instance.getLocalClanManager().online.put(clan, local);
+		Clan clan = ClansDatabase.getInstance().getClan(e.getPlayer());
+		if (clan != null)
+			clan.getOnline().remove(e.getPlayer());
 
-			if (ClanCommand.chatMode.contains(e.getPlayer())) {
-				ClanCommand.chatMode.remove(e.getPlayer());
-			}
-		}
+		ClanCommand.chatMode.remove(e.getPlayer());
 	}
 
 	@EventHandler
 	public void onKick(PlayerKickEvent e) {
-		if (Clans.instance.getClansManager().hasClan(e.getPlayer().getName())) {
-			String clan = Clans.instance.getClansManager().getClan(e.getPlayer().getName());
-			ArrayList<Player> local = Clans.instance.getLocalClanManager().online.get(clan);
-			local.remove(e.getPlayer());
-			Clans.instance.getLocalClanManager().online.put(clan, local);
+		Clan clan = ClansDatabase.getInstance().getClan(e.getPlayer());
+		if (clan != null)
+			clan.getOnline().remove(e.getPlayer());
 
-			if (ClanCommand.chatMode.contains(e.getPlayer())) {
-				ClanCommand.chatMode.remove(e.getPlayer());
-			}
-		}
+		ClanCommand.chatMode.remove(e.getPlayer());
 	}
 }

@@ -8,141 +8,93 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.guildcraft.annihilation.clans.Clan;
+import org.guildcraft.annihilation.clans.ClanLevel;
 import org.guildcraft.annihilation.clans.Clans;
-import org.guildcraft.annihilation.clans.manager.ClansManager;
+import org.guildcraft.annihilation.clans.manager.ClansDatabase;
 
 /**
  * Created by Arjenpro on 11/01/2017.
  */
 public class InventoryListener implements Listener {
-
-	public static HashMap<String, String> slots = new HashMap<>();
+	public static HashMap<String, String> slotsMap = new HashMap<>();
 
 
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
 		if (e.getInventory().getTitle().equals("Clan Shop")) {
-			if (e.getCurrentItem() == null) {
+			if (e.getCurrentItem() == null)
 				return;
-			}
 
 			e.setCancelled(true);
 
-			if (!Clans.instance.getClansManager().hasClan(e.getWhoClicked().getName())) {
-				e.getWhoClicked().sendMessage(
-						"Â§9Clans> Â§7Error occured while clicking, please report this. Â§eError code: 581");
-				e.getWhoClicked().closeInventory();
+			Player p = (Player) e.getWhoClicked();
+			Clan clan = ClansDatabase.getInstance().getClan(p.getName());
 
+			if (clan == null) {
+				e.getWhoClicked().sendMessage("§9Clans> §7You don't have a clan!");
+				e.getWhoClicked().closeInventory();
 				return;
 			}
-
-			ClansManager cm = Clans.instance.getClansManager();
-			String clan = cm.getClan(e.getWhoClicked().getName());
-
-			Player p = (Player) e.getWhoClicked();
-
 
 			if (e.getCurrentItem().getType().equals(Material.CHEST)) {
+				int currentSlots = clan.getSlots();
+				ClanLevel nextLevel = ClanLevel.getFromCurrentSlots(currentSlots);
 
-
-				int currentSlots = cm.getSlots(clan);
-				int price;
-				int nextslots;
-				String update;
-
-
-
-				if (currentSlots == 5) {
-					price = 500;
-					nextslots = 8;
-					update = "I";
-				}
-				else if (currentSlots == 8) {
-					price = 1000;
-					nextslots = 11;
-					update = "II";
-				}
-				else if (currentSlots == 11) {
-					price = 2000;
-					nextslots = 14;
-					update = "III";
-				}
-				else if (currentSlots == 14) {
-					price = 3500;
-					nextslots = 17;
-					update = "IV";
-				}
-				else if (currentSlots == 17) {
-					price = 5000;
-					nextslots = 20;
-					update = "V";
-				}
-				else if (currentSlots == 20) {
-
-					p.sendMessage("Â§9Clans> Â§7Your clan slots are already max level");
+				if (nextLevel == null) {
+					p.sendMessage("§9Clans> §7Your clan slots are already max level");
 					p.closeInventory();
-
-					return;
-
-
-				}
-				else {
 					return;
 				}
 
-				if (!(cm.getClanCoins(clan) >= price)) {
-					p.sendMessage("Â§9Clans> Â§7Yo do not have enough Â§eClans Coins Â§7to unlock this");
+				int price = nextLevel.getPrice();
+				int slots = nextLevel.getSlots();
+				String levelName = nextLevel.name();
+
+				if (clan.getCoins() < price) {
+					p.sendMessage("§9Clans> §7You don't have enough §eClan Coins §7to unlock this");
 					p.closeInventory();
-
 					return;
 				}
 
-				p.sendMessage("Â§9Clans> Â§7Information about slots update Â§e" + update);
+				p.sendMessage("§9Clans> §7Information about slots levelName §e" + levelName);
 				p.sendMessage("");
-				p.sendMessage("Â§9Clans> Â§7Member slots available after update: Â§e" + nextslots);
-				p.sendMessage("Â§9Clans> Â§7Price: Â§e" + price);
+				p.sendMessage("§9Clans> §7Member slots available after levelName: §e" + slots);
+				p.sendMessage("§9Clans> §7Price: §e" + price);
 				p.sendMessage("");
-				p.sendMessage("Â§9Clans> Â§eAre you sure? Â§7Type Â§eYES Â§7in the chat within 10 seconds to confirm");
-				slots.put(p.getName(), nextslots + "-" + price);
+				p.sendMessage("§9Clans> §eAre you sure? §7Type §eYES §7in the chat within 10 seconds to confirm");
+				slotsMap.put(p.getName(), slots + "-" + price);
 				p.closeInventory();
-				Bukkit.getScheduler().scheduleSyncDelayedTask(Clans.instance, new Runnable() {
-					@Override
-					public void run() {
-						if (slots.containsKey(p.getName())) {
-							slots.remove(p.getName());
-							p.sendMessage("Â§9Clans> Â§7Time out. Â§eAborted purchase.");
-						}
-					}
+				
+				Bukkit.getScheduler().runTaskLater(Clans.getInstance(), () -> {
+					if (slotsMap.remove(p.getName()) != null)
+						p.sendMessage("§9Clans> §7Time out. §eAborted purchase.");
 				}, 20 * 10);
 				return;
-
-
-
 			}
 			else if (e.getCurrentItem().getType().equals(Material.NAME_TAG)) {
-				if (cm.hasTag(clan)) {
-					p.sendMessage("Â§9Clans> Â§7Your clan tag: Â§e" + cm.getTag(clan));
+				if (clan.hasTag()) {
+					p.sendMessage("§9Clans> §7Your clan tag: §e" + clan.getTag());
 					p.closeInventory();
 
 					return;
 				}
 				else {
-					p.sendMessage("Â§9Clans> Â§7To setup your clan tag you need to execute command Â§e/clan tag <tag>");
-					p.sendMessage("Â§9Clans> Â§cWarning. You cannot change your tag after you created it!");
+					p.sendMessage("§9Clans> §7To setup your clan tag you need to execute command §e/clan tag <tag>");
+					p.sendMessage("§9Clans> §cWarning. You cannot change your tag after you created it!");
 					p.closeInventory();
 				}
 			}
 			else if (e.getCurrentItem().getType().equals(Material.BOOK_AND_QUILL)) {
-				if (cm.hasMOTD(clan)) {
-					p.sendMessage("Â§9Clans> Â§7Your clan MOTD: Â§e" + cm.getMembers(clan));
+				if (clan.hasMOTD()) {
+					p.sendMessage("§9Clans> §7Your clan MOTD: §e" + clan.getMotd());
 					p.closeInventory();
 
 					return;
 				}
 				else {
-					p.sendMessage(
-							"Â§9Clans> Â§7To setup your clan MOTD you need to execute command Â§e/clan MOTD <motd>");
-					p.sendMessage("Â§9Clans> Â§aYou can change your MOTD every day");
+					p.sendMessage("§9Clans> §7To setup your clan MOTD you need to execute command §e/clan MOTD <motd>");
+					p.sendMessage("§9Clans> §aYou can change your MOTD every day");
 					p.closeInventory();
 				}
 			}

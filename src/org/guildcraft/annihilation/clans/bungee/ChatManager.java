@@ -4,6 +4,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
+import lombok.Getter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -11,6 +13,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.guildcraft.annihilation.clans.Clan;
 import org.guildcraft.annihilation.clans.Clans;
 
 import java.io.*;
@@ -19,16 +22,12 @@ import java.io.*;
  * Created by Arjenpro on 6/01/2017.
  */
 public class ChatManager implements PluginMessageListener {
+	@Getter private static final ChatManager instance = new ChatManager();
 
-	private Clans pl;
-
-	public ChatManager(Clans pl) {
-		this.pl = pl;
-	}
-
-
-	public void sendChatMessageToClan(String sender, String clan, String message) {
-
+	public void sendChatMessageToClan(String sender, Clan clan, String message) {
+		if (clan == null)
+			return;
+		
 		ByteArrayDataOutput out = ByteStreams.newDataOutput();
 		out.writeUTF("Forward");
 		out.writeUTF("ALL");
@@ -39,7 +38,7 @@ public class ChatManager implements PluginMessageListener {
 
 		try {
 			msg.writeUTF(sender);
-			msg.writeUTF(clan);
+			msg.writeUTF(clan.getName().toLowerCase());
 			msg.writeUTF(message);
 		}
 		catch (IOException e) {
@@ -49,30 +48,14 @@ public class ChatManager implements PluginMessageListener {
 		out.writeShort(msgbyte.toByteArray().length);
 		out.write(msgbyte.toByteArray());
 
-		Iterables.getFirst(Bukkit.getOnlinePlayers(), null).sendPluginMessage(Clans.instance, "BungeeCord",
+		Iterables.getFirst(Bukkit.getOnlinePlayers(), null).sendPluginMessage(Clans.getInstance(), "BungeeCord",
 				out.toByteArray());
 
-
-
-		if (pl.getLocalClanManager().online.get(clan) == null) {
-			return;
-
-		}
-
-
-
-		for (Player s : pl.getLocalClanManager().online.get(clan)) {
-
-			if (sender.equals("SYSTEM")) {
-				s.sendMessage("Â§7[Â§aClanÂ§7] Â§e" + message);
-
-			}
-			else {
-
-				s.sendMessage("Â§7[Â§aClanÂ§7] Â§a" + sender + ": Â§f" + message);
-
-			}
-
+		for (Player player : clan.getOnline()) {
+			if (sender.equals("SYSTEM"))
+				player.sendMessage("§7[§aClan§7] §e" + message);
+			else
+				player.sendMessage("§7[§aClan§7] §a" + sender + ": §f" + message);
 		}
 	}
 
@@ -97,7 +80,7 @@ public class ChatManager implements PluginMessageListener {
 		out.writeShort(msgbyte.toByteArray().length);
 		out.write(msgbyte.toByteArray());
 
-		Iterables.getFirst(Bukkit.getOnlinePlayers(), null).sendPluginMessage(Clans.instance, "BungeeCord",
+		Iterables.getFirst(Bukkit.getOnlinePlayers(), null).sendPluginMessage(Clans.getInstance(), "BungeeCord",
 				out.toByteArray());
 	}
 
@@ -120,26 +103,19 @@ public class ChatManager implements PluginMessageListener {
 				DataInputStream in = new DataInputStream(new ByteArrayInputStream(msgbytes));
 
 				String sender = in.readUTF();
-				String clan = in.readUTF();
+				String clanName = in.readUTF();
 				String message = in.readUTF();
 
-
-				if (pl.getLocalClanManager().online.get(clan) == null) {
+				Clan clan = Clan.getClan(clanName);
+				if (clan == null)
 					return;
+
+				for (Player p : clan.getOnline()) {
+					if (sender.equals("SYSTEM"))
+						p.sendMessage("§7[§aClan§7] §e" + message);
+					else
+						p.sendMessage("§7[§aClan§7] §a" + sender + ": §f" + message);
 				}
-
-				for (Player p : pl.getLocalClanManager().online.get(clan.toLowerCase())) {
-					if (sender.equals("SYSTEM")) {
-						p.sendMessage("Â§7[Â§aClanÂ§7] Â§e" + message);
-
-					}
-					else {
-						p.sendMessage("Â§7[Â§aClanÂ§7] Â§a" + sender + ": Â§f" + message);
-					}
-
-				}
-
-
 
 			}
 			else if (sub.equals("ClansInvite")) {
@@ -156,14 +132,14 @@ public class ChatManager implements PluginMessageListener {
 				if (Bukkit.getPlayer(to) != null) {// just to be sure
 					if (msg.split("_")[0].equals("claninvite")) {
 						String clan = msg.split("_")[1];
-						TextComponent accept = new TextComponent("Â§eHERE");
+						TextComponent accept = new TextComponent("§eHERE");
 						accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-								new ComponentBuilder("Â§eClick to join the clan " + clan).create()));
+								new ComponentBuilder("§eClick to join the clan " + clan).create()));
 						accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan join " + clan));
 
-						TextComponent format = new TextComponent("Â§9Clans> Â§7You have been invited by the clan Â§e"
-								+ clan + "Â§7 \nÂ§9Clans> Â§7Click ");
-						TextComponent end = new TextComponent("Â§7 to join the clan");
+						TextComponent format = new TextComponent(
+								"§9Clans> §7You have been invited by the clan §e" + clan + "§7 \nÂ§9Clans> §7Click ");
+						TextComponent end = new TextComponent("§7 to join the clan");
 						format.addExtra(accept);
 						format.addExtra(end);
 
@@ -180,6 +156,7 @@ public class ChatManager implements PluginMessageListener {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
+	
+	// TODO add clan update message
 }

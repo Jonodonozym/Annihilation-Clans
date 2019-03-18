@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ItemUtil {
 
-	public static ItemStack getItem(Material m, int amount, String[] lore, String display) {
+	public static ItemStack getItem(Material m, int amount, String display, String... lore) {
 		ItemStack is = new ItemStack(m, amount);
 		ItemMeta meta = is.getItemMeta();
 		meta.setDisplayName(display);

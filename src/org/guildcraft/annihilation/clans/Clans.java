@@ -6,9 +6,10 @@ import org.guildcraft.annihilation.clans.bungee.ChatManager;
 import org.guildcraft.annihilation.clans.command.ClanCommand;
 import org.guildcraft.annihilation.clans.listener.InventoryListener;
 import org.guildcraft.annihilation.clans.listener.PlayerListener;
-import org.guildcraft.annihilation.clans.manager.ClansManager;
-import org.guildcraft.annihilation.clans.manager.DatabaseManager;
-import org.guildcraft.annihilation.clans.manager.LocalClanManager;
+import org.guildcraft.annihilation.clans.manager.ClansDatabase;
+
+import jdz.bukkitUtils.sql.SQLConfig;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,15 +23,9 @@ import java.util.List;
  * Created by arjen on 20/04/2016.
  */
 public class Clans extends JavaPlugin {
-
-
-	public static Clans instance;
-
-	private DatabaseManager databaseManager;
-	private ClansManager clansManager;
-	private LocalClanManager localClanManager;
+	@Getter private static Clans instance;
+	
 	private ChatManager chatManager;
-
 
 	public boolean gameMode;
 
@@ -60,33 +55,17 @@ public class Clans extends JavaPlugin {
 			}
 		}
 
-
-		/*
-		 * if (Bukkit.getPluginManager().getPlugin("Annihilation") == null){
-		 * System.out.
-		 * print("[Clans] CRITICAL ERROR: Annihilation is not installed, disabling.");
-		 * Bukkit.getPluginManager().disablePlugin(this);
-		 * return;
-		 * 
-		 * }
-		 */
-
 		String host = getConfig().getString("sql.host");
-		Integer port = getConfig().getInt("sql.port");
 		String name = getConfig().getString("sql.database");
 		String user = getConfig().getString("sql.user");
 		String pass = getConfig().getString("sql.pass");
 		System.out.println("[Clans] Loading database..");
 		System.out.println("[Clans] Connecting to database IP " + host + " with username " + user + "..");
-		databaseManager = new DatabaseManager(host, port, name, user, pass, this);
-		databaseManager.open();
+		ClansDatabase.init(new SQLConfig(host, name, user, pass));
 
 		System.out.print("[Clans] Connected to database successfully.");
 
-		clansManager = new ClansManager(this);
-		localClanManager = new LocalClanManager(this);
-		chatManager = new ChatManager(this);
-
+		ClansDatabase.getInstance();
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", chatManager);
@@ -140,20 +119,7 @@ public class Clans extends JavaPlugin {
 	}
 
 	private void registerCommands() {
-
 		getCommand("clan").setExecutor(new ClanCommand());
-	}
-
-	public ClansManager getClansManager() {
-		return clansManager;
-	}
-
-	public DatabaseManager getDatabaseManager() {
-		return databaseManager;
-	}
-
-	public LocalClanManager getLocalClanManager() {
-		return localClanManager;
 	}
 
 	public ChatManager getChatManager() {
