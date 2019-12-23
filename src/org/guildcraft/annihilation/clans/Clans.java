@@ -1,5 +1,6 @@
 package org.guildcraft.annihilation.clans;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.guildcraft.annihilation.clans.bungee.ChatManager;
@@ -22,22 +23,22 @@ import java.util.List;
  * Created by arjen on 20/04/2016.
  */
 public class Clans extends JavaPlugin {
+    @Getter
+	private static Clans instance;
 
-
-	public static Clans instance;
-
+	@Getter
 	private DatabaseManager databaseManager;
+    @Getter
 	private ClansManager clansManager;
+    @Getter
 	private LocalClanManager localClanManager;
+    @Getter
 	private ChatManager chatManager;
 
 
 	public boolean gameMode;
-
 	public static File log;
-
 	public List<String> blocked;
-
 
 	@Override
 	public void onEnable() {
@@ -60,19 +61,8 @@ public class Clans extends JavaPlugin {
 			}
 		}
 
-
-		/*
-		 * if (Bukkit.getPluginManager().getPlugin("Annihilation") == null){
-		 * System.out.
-		 * print("[Clans] CRITICAL ERROR: Annihilation is not installed, disabling.");
-		 * Bukkit.getPluginManager().disablePlugin(this);
-		 * return;
-		 * 
-		 * }
-		 */
-
 		String host = getConfig().getString("sql.host");
-		Integer port = getConfig().getInt("sql.port");
+		int port = getConfig().getInt("sql.port");
 		String name = getConfig().getString("sql.database");
 		String user = getConfig().getString("sql.user");
 		String pass = getConfig().getString("sql.pass");
@@ -87,25 +77,20 @@ public class Clans extends JavaPlugin {
 		localClanManager = new LocalClanManager(this);
 		chatManager = new ChatManager(this);
 
-
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", chatManager);
-
 
 
 		if (getConfig().getBoolean("lobbyMode")) {
 			gameMode = false;
 			System.out.print("[Clans] Lobbymode has been disabled. Cache will be used instead of live database.");
-		}
-		else {
+		} else {
+            gameMode = true;
 			System.out.print(
 					"[Clans] Lobbymode has been enabled. The plugin will use real life data from the SQL database.");
-
-			gameMode = true;
 		}
 
 		blocked = getConfig().getStringList("blockedwords");
-
 
 		System.out.println("[Clans] Clans is now ready to use!");
 	}
@@ -134,29 +119,11 @@ public class Clans extends JavaPlugin {
 
 
 	private void registerListeners() {
-
-		Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+		Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 		Bukkit.getPluginManager().registerEvents(new InventoryListener(), this);
 	}
 
 	private void registerCommands() {
-
-		getCommand("clan").setExecutor(new ClanCommand());
-	}
-
-	public ClansManager getClansManager() {
-		return clansManager;
-	}
-
-	public DatabaseManager getDatabaseManager() {
-		return databaseManager;
-	}
-
-	public LocalClanManager getLocalClanManager() {
-		return localClanManager;
-	}
-
-	public ChatManager getChatManager() {
-		return chatManager;
+		getCommand("clan").setExecutor(new ClanCommand(this));
 	}
 }

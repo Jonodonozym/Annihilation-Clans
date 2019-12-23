@@ -4,30 +4,24 @@ import org.bukkit.entity.Player;
 import org.guildcraft.annihilation.clans.Clans;
 import org.guildcraft.annihilation.clans.object.Clan;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Arjenpro on 6/01/2017.
  */
 public class LocalClanManager {
 
-
 	private Clans pl;
 
-	public HashMap<String, ArrayList<Player>> online = new HashMap<>();
+	public HashMap<String, List<Player>> online = new HashMap<>();
 
 	public LocalClanManager(Clans pl) {
 		this.pl = pl;
 	}
 
 	public boolean hasLocalData(String clan) {
-		if (Clan.clans.containsKey(clan.toLowerCase())) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	    return Clan.clans.containsKey(clan.toLowerCase());
 	}
 
 	public void createLocalData(String name) { // get real life data from SQL

@@ -3,51 +3,37 @@ package org.guildcraft.annihilation.clans.util;
 import org.guildcraft.annihilation.clans.Clans;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Arjenpro on 6/01/2017.
  */
 public class SQLArray {
 
-	public static ArrayList<String> getFromString(String str) {
+    public static List<String> getFromString(String str) {
+        List<String> list = new ArrayList<>();
+        Arrays.stream(str.split(",")).filter(s -> !s.equals("")).forEach(list::add);
+        return list;
+    }
 
-		ArrayList<String> list = new ArrayList<>();
+    public static List<String> getFromStringLS(String str) {
+        List<String> list = new ArrayList<>();
+        Arrays.stream(str.split(",")).filter(s -> !s.equals("")).map(String::toLowerCase).forEach(list::add);
+        return list;
+    }
 
-		for (String s : str.split(",")) {
-			if (!s.equals(""))
-				list.add(s);
-		}
-
-		return list;
-	}
-
-	public static ArrayList<String> getFromStringLS(String str) {
-
-		ArrayList<String> list = new ArrayList<>();
-
-		for (String s : str.split(",")) {
-			if (!s.equals(""))
-				list.add(s.toLowerCase());
-		}
-
-		return list;
-	}
-
-	public static String convertToString(ArrayList<String> list) {
-		String result = String.join(",", list);
-		return result;
-	}
+    public static String convertToString(List<String> list) {
+        return String.join(",", list);
+    }
 
 
+    public static String convertToStringView(List<String> list) {
+        List<String> list2 = new ArrayList<>();
 
-	public static String convertToStringView(ArrayList<String> list) {
-		ArrayList<String> list2 = new ArrayList<>();
-		for (String s : list) {
-			list2.add(Clans.instance.getClansManager().getRealPlayerName(s));
-		}
-		String result = String.join(", ", list2);
-		return result;
-	}
+        for (String s : list)
+            list2.add(Clans.getInstance().getClansManager().getRealPlayerName(s));
 
-
+        return String.join(", ", list2);
+    }
 }

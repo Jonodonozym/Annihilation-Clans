@@ -14,8 +14,6 @@ import java.util.ArrayList;
  */
 public class ClansManager {
 
-
-
 	private Clans pl;
 
 	public ClansManager(Clans pl) {
