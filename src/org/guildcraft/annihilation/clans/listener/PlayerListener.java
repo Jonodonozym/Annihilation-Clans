@@ -60,150 +60,133 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
+        if (!e.getMessage().toLowerCase().equals("yes")) return;
+
         Player p = e.getPlayer();
-        /*
-        TODO: CLEAN THE CRAP OUT OF THIS
-         */
+        e.setCancelled(true);
 
         if (ClanCommand.disband.containsKey(p.getName())) {
-            if (e.getMessage().toLowerCase().equals("yes")) {
-                if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("disband")) {
-                    Player p = e.getPlayer();
-                    String clan = ClanCommand.disband.get(p.getName()).split("_")[1];
-                    p.sendMessage("§9Clans> §7Removing all members from your clan.. §eProgress: 0%");
-                    plugin.getClansManager().disbandClan(clan);
-                    p.sendMessage("§9Clans> §7Disbanded your clan");
-                    ClanCommand.disband.remove(p.getName());
-                    e.setCancelled(true);
+            String to = ClanCommand.disband.get(p.getName());
+            String toDisband = to.split("_")[0];
+            String toDisband2 = to.split("_")[1];
 
-                } else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("tag")) {
-                    System.out.print(ClanCommand.disband.get(e.getPlayer().getName()));
-                    System.out.print((ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[0]);
-                    System.out.print((ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[1]);
+            ClanCommand.disband.remove(p.getName());
 
-                    String tag = (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[0];
-                    String price = (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1]).split("-")[1];
-
-                    System.out.print(tag);
-                    System.out.print(price);
-
-
-                    String clan = plugin.getClansManager().getClan(p.getName());
-                    plugin.getClansManager().removeClanCoins(Integer.parseInt(price), clan);
-                    plugin.getClansManager().setTag(clan, tag);
-
-                    p.sendMessage("§9Clans> §7Removed §e" + price + " §7Clan Coins from your Clan Wallet");
-                    p.sendMessage("§9Clans> §7Purchase complete. Your tag has been updated to §e" + tag);
-                    Clans.log(p.getName() + " bought clan tag " + tag + " for " + price + " coins");
-
-                    ClanCommand.disband.remove(p.getName());
-                    e.setCancelled(true);
-                } else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("motd")) {
-
-                    Player p = e.getPlayer();
-
-                    String motd = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[0];
-                    int price = Integer
-                            .parseInt(ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[1]);
-
-                    String clan = plugin.getClansManager().getClan(p.getName());
-                    plugin.getClansManager().removeClanCoins(price, clan);
-                    plugin.getClansManager().setMOTD(clan, motd);
-
-                    p.sendMessage("§9Clans> §7Removed §e" + price + " §7Clan Coins from your Clan Wallet");
-                    p.sendMessage("§9Clans> §7Purchase complete. Your MOTD has been updated to §e" + motd);
-
-                    if (price > 0) {
-                        Clans.log(p.getName() + " bought clan motd " + motd + " for " + price + " coins");
-
-                    }
-
-                    ClanCommand.disband.remove(p.getName());
-                    e.setCancelled(true);
-
-                } else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("transfer")) {
-                    Player p = e.getPlayer();
-
-
-                    String to = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[0];
-                    String clan = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[1];
-
-
-                    p.sendMessage("§9Clans> §7Transferring your clan to the player §e" + to);
-                    p.sendMessage("§9Clans> §7Your clan has been transferred. The player §e" + to
-                            + " has the leadership now.");
-                    p.sendMessage("§9Clans> §7You are now in the §eMEMBER §7group of your clan");
-
-                    plugin.getChatManager().sendChatMessageToClan("SYSTEM", clan,
-                            "§7The leadership went from §e" + p.getName() + "§7 to §e" + to);
-                    plugin.getChatManager().sendMessage(to,
-                            "§9Clans> §7You are now the owner of the clan §e" + clan);
-
-
-                    plugin.getClansManager().transfer(clan, to);
-
-                    ClanCommand.disband.remove(p.getName());
-                    e.setCancelled(true);
-
-
-                } else if (ClanCommand.disband.get(e.getPlayer().getName()).split("_")[0].equals("create")) {
-
-                    Player p = e.getPlayer();
-
-                    String name = ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[0];
-                    int price = Integer
-                            .parseInt(ClanCommand.disband.get(e.getPlayer().getName()).split("_")[1].split("-")[1]);
-
-                    plugin.getClansManager().createClan(name, p);
-                    p.sendMessage("§9Clans> §aCreated clan §7" + name
-                            + "§a. Invite members with §7/clan invite <player>");
-                    p.sendMessage(
-                            "§9Clans> §aYou are moved in the group §e§lOWNER §aof the clan §7" + name + "§a");
-
-                    p.sendMessage("§9Clans> §7Removed §b" + price + "XP §7from your Annihilation Wallet");
-
-                    ExperienceManager.getInstance().removeXP(p, price);
-
-                    Clans.log(p.getName() + " created clan " + name + " for " + price + " XP");
-
-                    ClanCommand.disband.remove(p.getName());
-                    e.setCancelled(true);
-
-
-                }
-            }
-        } else if (InventoryListener.slots.containsKey(e.getPlayer().getName())) {
-            if (e.getMessage().toLowerCase().equals("yes")) {
-
-                Player p = e.getPlayer();
-
-                int newslots = Integer.parseInt(InventoryListener.slots.get(e.getPlayer().getName()).split("-")[0]);
-                int price = Integer.parseInt(InventoryListener.slots.get(e.getPlayer().getName()).split("-")[1]);
-
-                String clan = plugin.getClansManager().getClan(p.getName());
-                plugin.getClansManager().removeClanCoins(price, clan);
-                plugin.getClansManager().setSlots(newslots, clan);
-
-                p.sendMessage("§9Clans> §7Removed §e" + price + " §7Clan Coins from your Clan Wallet");
-                p.sendMessage("§9Clans> §7Purchase complete. Your slots has been updated to §e" + newslots);
-
-                InventoryListener.slots.remove(e.getPlayer().getName());
-                e.setCancelled(true);
-            }
-        }
-
-        if (ClanCommand.chatMode.contains(e.getPlayer())) {
-            if (!plugin.getClansManager().hasClan(e.getPlayer().getName().toLowerCase())) {
-                ClanCommand.chatMode.remove(e.getPlayer());
+            if (toDisband.equals("disband")) {
+                p.sendMessage("§9Clans> §7Removing all members from your clan.. §eProgress: 0%");
+                plugin.getClansManager().disbandClan(toDisband2);
+                p.sendMessage("§9Clans> §7Disbanded your clan");
                 return;
             }
 
-            String clan = plugin.getClansManager().getClan(e.getPlayer().getName());
-            plugin.getChatManager().sendChatMessageToClan(e.getPlayer().getName(), clan, e.getMessage());
-            e.setCancelled(true);
+            if (toDisband.equals("tag")) {
+                System.out.println("[AsyncPlayerChatEvent]: Tag[" + to + "\n"
+                        + " Tag:" + toDisband2.split("-")[0] + " Price:" + toDisband2.split("-")[1] + "]");
+
+                String tag = toDisband2.split("-")[0];
+                String price = toDisband2.split("-")[1];
+
+                System.out.print(tag);
+                System.out.print(price);
+
+                String clan = plugin.getClansManager().getClan(p.getName());
+                plugin.getClansManager().removeClanCoins(Integer.parseInt(price), clan);
+                plugin.getClansManager().setTag(clan, tag);
+
+                p.sendMessage(ChatColor.BLUE + "Clans> "
+                        + ChatColor.GRAY + "Removed " + ChatColor.YELLOW + price
+                        + ChatColor.GRAY + " Clan Coins from your Clan Wallet");
+                p.sendMessage(ChatColor.BLUE + "Clans> "
+                        + ChatColor.GRAY + "Purchase complete. Your tag has been updated to " +
+                        ChatColor.YELLOW + tag);
+                Clans.log(p.getName() + " bought clan tag " + tag + " for " + price + " coins");
+                return;
+            }
+
+            if (toDisband.equals("motd")) {
+                String motd = toDisband2.split("-")[0];
+                int price = Integer.parseInt(toDisband2.split("-")[1]);
+
+                String clan = plugin.getClansManager().getClan(p.getName());
+                plugin.getClansManager().removeClanCoins(price, clan);
+                plugin.getClansManager().setMOTD(clan, motd);
+
+                p.sendMessage(ChatColor.BLUE + "Clans> "
+                        + ChatColor.GRAY + "Removed " + ChatColor.YELLOW + price +
+                        ChatColor.GRAY + " Clan Coins from your Clan Wallet");
+                p.sendMessage(ChatColor.BLUE + "Clans> " +
+                        ChatColor.GRAY + "Purchase complete. Your MOTD has been updated to " + ChatColor.YELLOW + motd);
+
+                if (price > 0)
+                    Clans.log(p.getName() + " bought clan motd " + motd + " for " + price + " coins");
+                return;
+            }
+
+            if (toDisband.equals("transfer")) {
+                String to2 = toDisband2.split("-")[0];
+                String clan = toDisband2.split("-")[1];
+
+                p.sendMessage(ChatColor.BLUE + "Clans> " +
+                        ChatColor.GRAY + "Transferring your clan to the player " +
+                        ChatColor.YELLOW + to2);
+                plugin.getClansManager().transfer(clan, to2);
+                p.sendMessage(ChatColor.BLUE + "Clans> " +
+                        ChatColor.GRAY + "Your clan has been transferred. The player " +
+                        ChatColor.YELLOW + to2 + " has the leadership now.");
+                p.sendMessage(ChatColor.BLUE + "Clans> " +
+                        ChatColor.GRAY + "You are now in the " + ChatColor.YELLOW + "MEMBER " +
+                        ChatColor.GRAY + "group of your clan");
+
+                plugin.getChatManager().sendChatMessageToClan("SYSTEM", clan,
+                        ChatColor.GRAY + "The leadership went from "
+                                + ChatColor.YELLOW + p.getName() + ChatColor.GRAY + " to "
+                                + ChatColor.YELLOW + to2);
+                plugin.getChatManager().sendMessage(to2,
+                        ChatColor.BLUE + "Clans> " +
+                                ChatColor.GRAY + "You are now the owner of the clan "
+                                + ChatColor.YELLOW + clan);
+                return;
+            }
+
+            if (toDisband.equals("create")) {
+                String name = toDisband2.split("-")[0];
+                int price = Integer.parseInt(toDisband2.split("-")[1]);
+
+                plugin.getClansManager().createClan(name, p);
+                p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GREEN + "Created clan "
+                        + ChatColor.GRAY + name + ChatColor.GREEN + ". Invite members with "
+                        + ChatColor.GRAY + "/clan invite <player>");
+                p.sendMessage(ChatColor.BLUE +
+                        "Clans> " + ChatColor.GREEN + "You are moved in the group " +
+                        ChatColor.YELLOW + "" + ChatColor.BOLD + "OWNER " +
+                        ChatColor.GREEN + "of the clan " + ChatColor.GRAY + name);
+
+                ExperienceManager.getInstance().removeXP(p, price);
+                p.sendMessage(ChatColor.BLUE + "Clans> " +
+                        ChatColor.GRAY + "Removed " + ChatColor.AQUA + price + "XP " +
+                        ChatColor.GRAY + "from your Annihilation Wallet");
+
+                Clans.log(p.getName() + " created clan " + name + " for " + price + " XP");
+                return;
+            }
+        }
+
+        if (InventoryListener.getSlots().containsKey(p.getName())) {
+            int newslots = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[0]);
+            int price = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[1]);
+
+            String clan = plugin.getClansManager().getClan(p.getName());
+            plugin.getClansManager().removeClanCoins(price, clan);
+            plugin.getClansManager().setSlots(newslots, clan);
+
+            p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY
+                    + "Removed " + ChatColor.YELLOW + price + ChatColor.GRAY + " Clan Coins from your Clan Wallet");
+            p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY +
+                    "Purchase complete. Your slots has been updated to " + ChatColor.YELLOW + newslots);
+
+            InventoryListener.getSlots().remove(p.getName());
         }
     }
-
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
@@ -225,6 +208,7 @@ public class PlayerListener implements Listener {
         List<Player> local = plugin.getLocalClanManager().online.get(clan);
         local.remove(e.getPlayer());
         plugin.getLocalClanManager().online.put(clan, local);
+
         ClanCommand.chatMode.remove(e.getPlayer());
     }
 }

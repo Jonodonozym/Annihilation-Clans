@@ -57,11 +57,11 @@ public class ClanCommand implements CommandExecutor {
 
                 if (!c.getMotd().equals("null")) {
                     System.out.print("Setting motd");
-                    motd = "§e" + c.getMotd().replaceAll("&", "§");
+                    motd = ChatColor.YELLOW + c.getMotd().replaceAll("&", "§");
                 }
             }
 
-            p.sendMessage("§eClans v0.1 ALPHA");
+            p.sendMessage(ChatColor.YELLOW + "Clans v0.1 ALPHA");
             p.sendMessage("");
             p.sendMessage(ChatColor.GREEN + "Your current clan: " + ChatColor.GRAY + clanName);
 

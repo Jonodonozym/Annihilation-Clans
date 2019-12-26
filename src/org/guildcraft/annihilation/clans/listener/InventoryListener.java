@@ -1,5 +1,6 @@
 package org.guildcraft.annihilation.clans.listener;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,13 +12,15 @@ import org.guildcraft.annihilation.clans.Clans;
 import org.guildcraft.annihilation.clans.manager.ClansManager;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Arjenpro on 11/01/2017.
  */
 public class InventoryListener implements Listener {
 
-    public static HashMap<String, String> slots = new HashMap<>();
+    @Getter
+    private static final Map<String, String> slots = new HashMap<>();
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
@@ -48,10 +51,16 @@ public class InventoryListener implements Listener {
 
         if (e.getCurrentItem().getType() == Material.CHEST) {
             int currentSlots = cm.getSlots(clan);
+
+            if (currentSlots == 20) {
+                p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Your clan slots are already max level");
+                p.closeInventory();
+                return;
+            }
+
             int price;
             int nextslots;
             String update;
-
             if (currentSlots == 5) {
                 price = 500;
                 nextslots = 8;
@@ -72,10 +81,6 @@ public class InventoryListener implements Listener {
                 price = 5000;
                 nextslots = 20;
                 update = "V";
-            } else if (currentSlots == 20) {
-                p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Your clan slots are already max level");
-                p.closeInventory();
-                return;
             } else
                 return;
 

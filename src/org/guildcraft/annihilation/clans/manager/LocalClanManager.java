@@ -67,16 +67,11 @@ public class LocalClanManager {
 		return Clan.getClan(clan.toLowerCase());
 	}
 
-
-
 	public boolean isLocalDataOld(String clan) {
-		if (!hasLocalData(clan)) {
+		if (!hasLocalData(clan))
 			return true;
-		}
 		return ((System.currentTimeMillis() - Clan.clans.get(clan.toLowerCase()).getUpdated()) > 600000); // 10 min
 																											// update;
 																											// changeable
-
 	}
-
 }
