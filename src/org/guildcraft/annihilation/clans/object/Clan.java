@@ -30,7 +30,7 @@ public class Clan {
     private int coins;
     @Getter
     @Setter
-    private int points;
+    private int score;
     @Getter
     private List<String> invited;
     @Getter
@@ -38,7 +38,7 @@ public class Clan {
 
 
     public Clan(String name, String owner, List<String> officers, List<String> members, String tag,
-                String motd, int coins, int points, List<String> invited, Long updated) {
+                String motd, int coins, int score, List<String> invited, Long updated) {
         this.name = name;
         this.owner = owner;
         this.officers = officers;
@@ -46,7 +46,7 @@ public class Clan {
         this.tag = tag;
         this.motd = motd;
         this.coins = coins;
-        this.points = points;
+        this.score = score;
         this.invited = invited;
         this.updated = updated;
     }

@@ -29,7 +29,7 @@ public class LocalClanManager {
 		Clan.addClan(name.toLowerCase(), pl.getClansManager().getOwner(name), pl.getClansManager().getOfficers(name),
 				pl.getClansManager().getMembers(name), pl.getClansManager().getTag(name),
 				pl.getClansManager().getMOTD(name), pl.getClansManager().getClanCoins(name),
-				pl.getClansManager().getClanPoints(name), pl.getClansManager().getInvited(name),
+				pl.getClansManager().getClanScore(name), pl.getClansManager().getInvited(name),
 				System.currentTimeMillis());
 	}
 

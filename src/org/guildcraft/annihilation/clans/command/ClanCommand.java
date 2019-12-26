@@ -574,7 +574,7 @@ public class ClanCommand implements CommandExecutor {
                 "&7Slots used: &e" + pl.getClansManager().getTotalMembers(clan) + "&7/&e"
                         + pl.getClansManager().getSlots(clan)) + "\n" +
                 "&6Clan Coins: " + c.getCoins() + "\n" +
-                "&dClan Points: " + c.getPoints());
+                "&dClan Score: " + c.getScore());
         p.sendMessage(ChatColor.YELLOW + "------------------------------");
         p.sendMessage(pl.translate("&eCreator: &c" + c.getOwner() + "\n"
                 + "&9Officers: &6" + SQLArray.convertToStringView(c.getOfficers())) + "\n" +
