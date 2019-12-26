@@ -6,6 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.guildcraft.annihilation.clans.bungee.ChatManager;
+import org.guildcraft.annihilation.clans.command.ChatCommand;
+import org.guildcraft.annihilation.clans.command.ClanChatCommand;
 import org.guildcraft.annihilation.clans.command.ClanCommand;
 import org.guildcraft.annihilation.clans.listener.ClanChatListener;
 import org.guildcraft.annihilation.clans.listener.InventoryListener;
@@ -19,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +29,8 @@ import java.util.List;
  * Created by arjen on 20/04/2016.
  */
 public class Clans extends JavaPlugin {
-    public static File log;
+    private static File log;
+
     @Getter
     private static Clans instance;
 
@@ -45,6 +49,10 @@ public class Clans extends JavaPlugin {
 
     @Getter
     private ChatManager chatManager;
+
+    @Getter
+    private List<Player> chatMode = new ArrayList<>();
+
 
     public static void log(String string) {
         try {
@@ -125,6 +133,18 @@ public class Clans extends JavaPlugin {
         player.sendMessage(translate("&f[&bClans&f] &7" + msg));
     }
 
+    public String getFinalArg(final String[] args) {
+        final StringBuilder bldr = new StringBuilder();
+
+        for (int i = 1; i < args.length; i++) {
+            if (i != 1)
+                bldr.append(" ");
+            bldr.append(args[i]);
+        }
+
+        return bldr.toString();
+    }
+
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(), this);
@@ -133,5 +153,7 @@ public class Clans extends JavaPlugin {
 
     private void registerCommands() {
         getCommand("clan").setExecutor(new ClanCommand(this));
+        getCommand("chat").setExecutor(new ChatCommand(this));
+        getCommand("clanchat").setExecutor(new ClanChatCommand(this));
     }
 }

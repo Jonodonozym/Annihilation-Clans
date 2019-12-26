@@ -7,8 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.guildcraft.annihilation.clans.Clans;
 import org.guildcraft.annihilation.clans.command.ClanCommand;
 import org.guildcraft.annihilation.gcStatsHook.ExperienceManager;
@@ -158,29 +156,5 @@ public class PlayerListener implements Listener {
             plugin.sendMessage(p, "Purchase complete. Your slots has been updated to &e" + newslots);
             InventoryListener.getSlots().remove(p.getName());
         }
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        if (!plugin.getClansManager().hasClan(e.getPlayer().getName())) return;
-
-        String clan = plugin.getClansManager().getClan(e.getPlayer().getName());
-        List<Player> local = plugin.getLocalClanManager().online.get(clan);
-        local.remove(e.getPlayer());
-        plugin.getLocalClanManager().online.put(clan, local);
-
-        ClanCommand.chatMode.remove(e.getPlayer());
-    }
-
-    @EventHandler
-    public void onKick(PlayerKickEvent e) {
-        if (!plugin.getClansManager().hasClan(e.getPlayer().getName())) return;
-
-        String clan = plugin.getClansManager().getClan(e.getPlayer().getName());
-        List<Player> local = plugin.getLocalClanManager().online.get(clan);
-        local.remove(e.getPlayer());
-        plugin.getLocalClanManager().online.put(clan, local);
-
-        ClanCommand.chatMode.remove(e.getPlayer());
     }
 }

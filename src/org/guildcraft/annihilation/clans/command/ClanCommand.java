@@ -12,9 +12,7 @@ import org.guildcraft.annihilation.clans.object.Clan;
 import org.guildcraft.annihilation.clans.util.SQLArray;
 import org.guildcraft.annihilation.gcStatsHook.ExperienceManager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Arjenpro on 6/01/2017.
@@ -22,7 +20,6 @@ import java.util.List;
 public class ClanCommand implements CommandExecutor {
 
     public static HashMap<String, String> disband = new HashMap<>();
-    public static List<Player> chatMode = new ArrayList<>();
 
     private Clans pl;
 
@@ -143,22 +140,6 @@ public class ClanCommand implements CommandExecutor {
                     ShopMenu.open(p, clan);
                     return true;
 
-                case "chat":
-                    if (!pl.getClansManager().hasClan(p.getName())) {
-                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
-                        return true;
-                    }
-
-                    if (chatMode.contains(p)) {
-                        pl.sendMessage(p, "Disabled channel &eCLAN&7. You are now chatting in &ePUBLIC");
-                        chatMode.remove(p);
-                        return true;
-                    } else {
-                        pl.sendMessage(p, "Enabled channel &eCLAN");
-                        chatMode.add(p);
-                        return true;
-                    }
-
                 case "leave":
                     if (!pl.getClansManager().hasClan(p.getName())) {
                         pl.sendMessage(p, "You have to be a member of a clan to do this.");
@@ -188,6 +169,30 @@ public class ClanCommand implements CommandExecutor {
             switch (strings[0].toLowerCase()) {
                 default:
                     break;
+
+                case "score":
+                    String player = strings[1];
+
+                    if (!pl.getClansManager().hasClan(player)) {
+                        pl.sendMessage(p, player + " does not have a clan!");
+                        return true;
+                    }
+
+                    pl.sendMessage(p, "&dClan Score of &7" + player + "s clan: &d"
+                            + pl.getClansManager().getClanScore(pl.getClansManager().getClan(player)));
+                    return true;
+
+                case "coins":
+                    player = strings[1];
+
+                    if (!pl.getClansManager().hasClan(player)) {
+                        pl.sendMessage(p, player + " does not have a clan!");
+                        return true;
+                    }
+
+                    pl.sendMessage(p, "&6Clan Coins of &7" + player + "s clan: &6"
+                            + pl.getClansManager().getClanCoins(pl.getClansManager().getClan(player)));
+                    return true;
 
                 case "join":
                     String tojoin = strings[1];
@@ -274,16 +279,6 @@ public class ClanCommand implements CommandExecutor {
                             pl.translate("&7The player &e" + p.getName() + " &7invited &e" + strings[1]));
 
                     pl.getChatManager().sendMessage(strings[1], "claninvite_" + pl.getClansManager().getRealName(clan));
-                    return true;
-
-                case "chat":
-                    if (!pl.getClansManager().hasClan(p.getName())) {
-                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
-                        return true;
-                    }
-
-                    pl.getChatManager().sendChatMessageToClan(p.getName(),
-                            pl.getClansManager().getClan(p.getName()).toLowerCase(), strings[1]);
                     return true;
 
                 case "promote":
@@ -494,16 +489,7 @@ public class ClanCommand implements CommandExecutor {
                 return true;
             }
 
-            if (strings[0].equalsIgnoreCase("chat")) {
-                if (!pl.getClansManager().hasClan(p.getName())) {
-                    pl.sendMessage(p, "You have to be a member of a clan to do this.");
-                    return true;
-                }
-
-                pl.getChatManager().sendChatMessageToClan(p.getName(),
-                        pl.getClansManager().getClan(p.getName()).toLowerCase(), getFinalArg(strings));
-                return true;
-            } else if (strings[0].equalsIgnoreCase("motd")) {
+            if (strings[0].equalsIgnoreCase("motd")) {
                 String clan = pl.getClansManager().getClan(p.getName());
 
                 if (pl.gameMode) {
@@ -520,17 +506,17 @@ public class ClanCommand implements CommandExecutor {
 
                     pl.sendMessage(p, "MOTD Purchase");
                     p.sendMessage("");
-                    pl.sendMessage(p, "MOTD: &e" + getFinalArg(strings));
+                    pl.sendMessage(p, "MOTD: &e" + pl.getFinalArg(strings));
                     pl.sendMessage(p, "Price: &e5000");
-                    disband.put(p.getName(), "motd_" + getFinalArg(strings) + "-" + "5000");
+                    disband.put(p.getName(), "motd_" + pl.getFinalArg(strings) + "-" + "5000");
                     setTimer(p);
                     return true;
                 } else {
                     pl.sendMessage(p, "MOTD Update");
                     p.sendMessage("");
-                    pl.sendMessage(p, "MOTD: &e" + getFinalArg(strings));
+                    pl.sendMessage(p, "MOTD: &e" + pl.getFinalArg(strings));
                     pl.sendMessage(p, "Price: Free");
-                    disband.put(p.getName(), "motd_" + getFinalArg(strings) + "-" + "0");
+                    disband.put(p.getName(), "motd_" + pl.getFinalArg(strings) + "-" + "0");
                     setTimer(p);
                     return true;
                 }
@@ -542,18 +528,6 @@ public class ClanCommand implements CommandExecutor {
         return true;
     }
 
-
-    private String getFinalArg(final String[] args) {
-        final StringBuilder bldr = new StringBuilder();
-
-        for (int i = 1; i < args.length; i++) {
-            if (i != 1)
-                bldr.append(" ");
-            bldr.append(args[i]);
-        }
-
-        return bldr.toString();
-    }
 
     private void helpMenu(Player p, boolean hasClan) {
         if (hasClan) {

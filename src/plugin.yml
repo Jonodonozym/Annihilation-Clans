@@ -5,3 +5,6 @@ main: org.guildcraft.annihilation.clans.Clans
 commands:
     clan:
        aliases: [c,clans]
+    chat:
+    clanchat:
+      aliases: [cc];

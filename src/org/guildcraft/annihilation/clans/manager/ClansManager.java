@@ -290,7 +290,7 @@ public class ClansManager {
                 + clan.toLowerCase() + "';");
     }
 
-    public int getClanPoints(String clan) {
+    public int getClanScore(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
                     "SELECT " + "points" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
@@ -305,8 +305,8 @@ public class ClansManager {
         return -1;
     }
 
-    public void addClanPoints(int add, String clan) {
-        int set = getClanPoints(clan) + add;
+    public void addClanScore(int add, String clan) {
+        int set = getClanScore(clan) + add;
         pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "points" + "`='" + set
                 + "' WHERE `name`='" + clan.toLowerCase() + "';");
     }
