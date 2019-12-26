@@ -1,6 +1,7 @@
 package org.guildcraft.annihilation.clans.manager;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.guildcraft.annihilation.clans.Clans;
 import org.guildcraft.annihilation.clans.util.SQLArray;
@@ -64,13 +65,13 @@ public class ClansManager {
         if (!newArrayMembers.contains(joiner.getName()))
             newArrayMembers.add(joiner.getName().toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                 + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + name.toLowerCase() + "';");
 
         List<String> newArrayInvited = getInvited(name);
         newArrayInvited.remove(joiner.getName().toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "invited" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `invited`='"
                 + SQLArray.convertToString(newArrayInvited) + "' WHERE `name`='" + name.toLowerCase() + "';");
 
         setClan(joiner.getName(), name, joiner);
@@ -91,7 +92,7 @@ public class ClansManager {
         if (!newArray.contains(invited.toLowerCase()))
             newArray.add(invited.toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "invited" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `invited`='"
                 + SQLArray.convertToString(newArray) + "' WHERE `name`='" + clan.toLowerCase() + "';");
     }
 
@@ -106,13 +107,13 @@ public class ClansManager {
             List<String> newArrayOfficers = getOfficers(clan);
             newArrayOfficers.remove(leaver.toLowerCase());
 
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "officers" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `officers`='"
                     + SQLArray.convertToString(newArrayOfficers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
         } else {
             List<String> newArrayMembers = getMembers(clan);
             newArrayMembers.remove(leaver.toLowerCase());
 
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                     + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
         }
 
@@ -130,13 +131,13 @@ public class ClansManager {
             List<String> newArrayOfficers = getOfficers(clan);
             newArrayOfficers.remove(leaver.toLowerCase());
 
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "officers" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `officers`='"
                     + SQLArray.convertToString(newArrayOfficers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
         } else {
             List<String> newArrayMembers = getMembers(clan);
             newArrayMembers.remove(leaver.toLowerCase());
 
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                     + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
         }
 
@@ -157,9 +158,10 @@ public class ClansManager {
             setClan(members, "null");
 
         pl.getDatabaseManager() // sql delete
-                .query("DELETE  FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'");
+                .query("DELETE  FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'");
 
-        pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(), "§eThe clan has been disbanded.");
+        pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
+                ChatColor.YELLOW + "The clan has been disbanded.");
     }
 
     public void transfer(String clan, String to) {
@@ -172,17 +174,16 @@ public class ClansManager {
             List<String> newArrayOfficers = getOfficers(clan);
             newArrayOfficers.remove(to.toLowerCase());
 
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                     + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
-
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "officers" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `officers`='"
                     + SQLArray.convertToString(newArrayOfficers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
         } else {
             List<String> newArrayMembers = getMembers(clan);
             newArrayMembers.add(owner.toLowerCase());
             newArrayMembers.remove(to.toLowerCase());
 
-            pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+            pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                     + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
         }
 
@@ -191,8 +192,8 @@ public class ClansManager {
 
     public String getClan(String player) {
         try {
-            ResultSet rs = pl.getDatabaseManager().query("SELECT " + "clan" + " FROM `" + "clans_players"
-                    + "` WHERE `username`='" + player.toLowerCase() + "'").getResultSet();
+            ResultSet rs = pl.getDatabaseManager().query(
+                    "SELECT clan FROM `clans_players` WHERE `username`='" + player.toLowerCase() + "'").getResultSet();
 
             if (rs.next())
                 return rs.getString("clan");
@@ -205,8 +206,8 @@ public class ClansManager {
 
     public boolean hasClan(String player) {
         try {
-            ResultSet rs = pl.getDatabaseManager().query("SELECT " + "clan" + " FROM `" + "clans_players"
-                    + "` WHERE `username`='" + player.toLowerCase() + "'").getResultSet();
+            ResultSet rs = pl.getDatabaseManager().query(
+                    "SELECT clan FROM `clans_players` WHERE `username`='" + player.toLowerCase() + "'").getResultSet();
 
             if (rs.next()) {
                 String clan = rs.getString("clan");
@@ -229,7 +230,7 @@ public class ClansManager {
     public void setClan(String name, String clan) {
         System.out.print("Setting clan");
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_players" + "` SET `" + "clan" + "`='" + clan.toLowerCase()
+        pl.getDatabaseManager().query("UPDATE `clans_players` SET `clan`='" + clan.toLowerCase()
                 + "' WHERE `username`='" + name.toLowerCase() + "';");
 
         System.out.print("Updated clan: " + getClan(name));
@@ -239,10 +240,10 @@ public class ClansManager {
         System.out.print("Setting clan");
 
         pl.getDatabaseManager()
-                .query("INSERT IGNORE INTO " + "clans_players" + " (`username`, `clan`, `realname`) VALUES " + "('"
+                .query("INSERT IGNORE INTO clans_players (`username`, `clan`, `realname`) VALUES ('"
                         + name.toLowerCase() + "', '" + clan.toLowerCase() + "', '" + p.getName() + "');");
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_players" + "` SET `" + "clan" + "`='" + clan.toLowerCase()
+        pl.getDatabaseManager().query("UPDATE `clans_players` SET `clan`='" + clan.toLowerCase()
                 + "' WHERE `username`='" + name.toLowerCase() + "';");
 
         System.out.print("Updated clan: " + getClan(name));
@@ -250,8 +251,8 @@ public class ClansManager {
 
     public String getRealPlayerName(String player) {
         try {
-            ResultSet rs = pl.getDatabaseManager().query("SELECT " + "realname" + " FROM `" + "clans_players"
-                    + "` WHERE `username`='" + player.toLowerCase() + "'").getResultSet();
+            ResultSet rs = pl.getDatabaseManager().query(
+                    "SELECT realname FROM `clans_players` WHERE `username`='" + player.toLowerCase() + "'").getResultSet();
 
             if (rs.next())
                 return rs.getString("realname");
@@ -265,7 +266,7 @@ public class ClansManager {
     public int getClanCoins(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "coins" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT coins FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -280,20 +281,20 @@ public class ClansManager {
 
     public void addClanCoins(int add, String clan) {
         int set = getClanCoins(clan) + add;
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "coins" + "`='" + set + "' WHERE `name`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `coins`='" + set + "' WHERE `name`='"
                 + clan.toLowerCase() + "';");
     }
 
     public void removeClanCoins(int remove, String clan) {
         int set = getClanCoins(clan) - remove;
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "coins" + "`='" + set + "' WHERE `name`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `coins`='" + set + "' WHERE `name`='"
                 + clan.toLowerCase() + "';");
     }
 
     public int getClanScore(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "points" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT points FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -307,14 +308,14 @@ public class ClansManager {
 
     public void addClanScore(int add, String clan) {
         int set = getClanScore(clan) + add;
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "points" + "`='" + set
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `points`='" + set
                 + "' WHERE `name`='" + clan.toLowerCase() + "';");
     }
 
     public String getTag(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager()
-                    .query("SELECT " + "tag" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    .query("SELECT tag FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -331,14 +332,14 @@ public class ClansManager {
     }
 
     public void setTag(String clan, String tag) {
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "tag" + "`='" + tag + "' WHERE `name`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `tag`='" + tag + "' WHERE `name`='"
                 + clan.toLowerCase() + "';");
     }
 
     public String getMOTD(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "motd" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT motd FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -355,14 +356,14 @@ public class ClansManager {
     }
 
     public void setMOTD(String clan, String motd) {
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "motd" + "`='" + motd + "' WHERE `name`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `motd`='" + motd + "' WHERE `name`='"
                 + clan.toLowerCase() + "';");
     }
 
     public String getOwner(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "owner" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT owner FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -376,14 +377,14 @@ public class ClansManager {
 
     public void setOwner(String clan, String owner) {
         String newowner = getRealPlayerName(owner.toLowerCase());
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "owner" + "`='" + newowner
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `owner`='" + newowner
                 + "' WHERE `name`='" + clan.toLowerCase() + "';");
     }
 
     public String getRealName(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "realname" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT realname FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -398,7 +399,7 @@ public class ClansManager {
     public int getSlots(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "slots" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT slots FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -411,14 +412,14 @@ public class ClansManager {
     }
 
     public void setSlots(int set, String clan) {
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "slots" + "`='" + set + "' WHERE `name`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `slots`='" + set + "' WHERE `name`='"
                 + clan.toLowerCase() + "';");
     }
 
     public List<String> getOfficers(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "officers" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT officers FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -433,7 +434,7 @@ public class ClansManager {
     public List<String> getOfficersLS(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "officers" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT officers FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -448,7 +449,7 @@ public class ClansManager {
     public List<String> getMembers(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "members" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT members FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -463,7 +464,7 @@ public class ClansManager {
     public List<String> getMembersLS(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "members" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT members FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -478,7 +479,7 @@ public class ClansManager {
     public List<String> getInvited(String clan) {
         try {
             ResultSet rs = pl.getDatabaseManager().query(
-                    "SELECT " + "invited" + " FROM `" + "clans_clan" + "` WHERE `name`='" + clan.toLowerCase() + "'")
+                    "SELECT invited FROM `clans_clan` WHERE `name`='" + clan.toLowerCase() + "'")
                     .getResultSet();
 
             if (rs.next())
@@ -501,13 +502,13 @@ public class ClansManager {
         List<String> newArrayMembers = getMembers(clan);
         newArrayMembers.remove(player.toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                 + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
 
         List<String> newArrayOfficers = getOfficers(clan);
         newArrayOfficers.add(player.toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "officers" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `officers`='"
                 + SQLArray.convertToString(newArrayOfficers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
     }
 
@@ -517,13 +518,13 @@ public class ClansManager {
         List<String> newArrayMembers = getOfficers(clan);
         newArrayMembers.remove(player.toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "officers" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                 + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
 
         List<String> newArrayOfficers = getMembers(clan);
         newArrayOfficers.add(player.toLowerCase());
 
-        pl.getDatabaseManager().query("UPDATE `" + "clans_clan" + "` SET `" + "members" + "`='"
+        pl.getDatabaseManager().query("UPDATE `clans_clan` SET `officers`='"
                 + SQLArray.convertToString(newArrayOfficers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
     }
 

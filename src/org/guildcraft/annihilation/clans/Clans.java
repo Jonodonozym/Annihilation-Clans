@@ -133,11 +133,11 @@ public class Clans extends JavaPlugin {
         player.sendMessage(translate("&f[&bClans&f] &7" + msg));
     }
 
-    public String getFinalArg(final String[] args) {
+    public String getFinalArg(final String[] args, int starting) {
         final StringBuilder bldr = new StringBuilder();
 
-        for (int i = 1; i < args.length; i++) {
-            if (i != 1)
+        for (int i = starting; i < args.length; i++) {
+            if (i != starting)
                 bldr.append(" ");
             bldr.append(args[i]);
         }

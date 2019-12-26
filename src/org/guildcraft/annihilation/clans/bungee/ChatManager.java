@@ -57,13 +57,14 @@ public class ChatManager implements PluginMessageListener {
 
         for (Player s : plugin.getLocalClanManager().online.get(clan)) {
             if (sender.equals("SYSTEM"))
-                s.sendMessage(ChatColor.GRAY + "[ " +
-                        ChatColor.GREEN + "Clan" + ChatColor.GRAY + "] " +
-                        ChatColor.YELLOW + message);
-            else
-                s.sendMessage(ChatColor.GRAY + "[ " +
-                        ChatColor.GREEN + "Clan" + ChatColor.GRAY + "] " + ChatColor.BLUE + sender + ": "
-                        + ChatColor.WHITE + message);
+                plugin.sendMessage(s, "&7[&aClan&7] &e" + message);
+            else {
+                if (Bukkit.getPlayer(sender) != null && Bukkit.getPlayer(sender).hasPermission("clan.colorchat"))
+                    s.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                            "&f[&bClans&f] &a" + sender + ": &f" + message));
+                else
+                    s.sendMessage(plugin.translate("&f[&bClans&f] &a" + sender + ": &f") + message);
+            }
         }
     }
 

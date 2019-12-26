@@ -37,7 +37,7 @@ public class ClanChatCommand implements CommandExecutor {
         }
 
         plugin.getChatManager().sendChatMessageToClan(p.getName(),
-                plugin.getClansManager().getClan(p.getName()).toLowerCase(), plugin.getFinalArg(args));
+                plugin.getClansManager().getClan(p.getName()).toLowerCase(), plugin.getFinalArg(args, 0));
         return true;
     }
 }

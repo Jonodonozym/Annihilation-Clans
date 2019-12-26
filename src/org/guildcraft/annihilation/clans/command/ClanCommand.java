@@ -35,7 +35,6 @@ public class ClanCommand implements CommandExecutor {
 
         if (strings.length == 0) {
             String clan = "None";
-            String clanName = "None";
             Clan c = null;
             String tag = pl.translate("&eNone &7(You can buy one in the /clan shop)");
             String motd = tag;
@@ -43,7 +42,6 @@ public class ClanCommand implements CommandExecutor {
             if (pl.getClansManager().hasClan(p.getName())) {
                 clan = pl.getClansManager().getClan(p.getName());
                 c = pl.getLocalClanManager().getLocalData(clan);
-                clanName = pl.getClansManager().getRealName(clan);
 
                 System.out.println(c.getTag());
 
@@ -60,8 +58,6 @@ public class ClanCommand implements CommandExecutor {
 
             p.sendMessage(ChatColor.YELLOW + "Clans v1.0 BETA");
             p.sendMessage("");
-            pl.sendMessage(p, "&aYour current clan:");
-            p.sendMessage(ChatColor.GREEN + "Your current clan: " + ChatColor.GRAY + clanName);
 
             if (!clan.equals("None"))
                 sendClan(p, c, tag, motd, clan, false);
@@ -178,7 +174,7 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
-                    pl.sendMessage(p, "&dClan Score of &7" + player + "s clan: &d"
+                    pl.sendMessage(p, "&7Clan Score of &7" + player + "'s clan: &d"
                             + pl.getClansManager().getClanScore(pl.getClansManager().getClan(player)));
                     return true;
 
@@ -190,7 +186,7 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
-                    pl.sendMessage(p, "&6Clan Coins of &7" + player + "s clan: &6"
+                    pl.sendMessage(p, "&7Clan Coins of &7" + player + "'s clan: &6"
                             + pl.getClansManager().getClanCoins(pl.getClansManager().getClan(player)));
                     return true;
 
@@ -318,8 +314,8 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
-                    if (!pl.getClansManager().getMembersLS(clan).contains(strings[1].toLowerCase())) {
-                        pl.sendMessage(p, "That player isn't in your clan1");
+                    if (!pl.getClansManager().getOfficersLS(clan).contains(strings[1].toLowerCase())) {
+                        pl.sendMessage(p, "That player isn't an officer in your clan!");
                         return true;
                     }
 
@@ -363,10 +359,8 @@ public class ClanCommand implements CommandExecutor {
 
                     pl.getClansManager().kickPlayer(clan, strings[1]);
                     pl.sendMessage(p, "The player " + strings[1] + " has been kicked from your clan.");
-
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
                             pl.translate("&7The player " + strings[1] + " has been kicked."));
-
                     pl.getChatManager().sendMessage(strings[1],
                             pl.translate("&4!! &eYou have been kicked from your clan &4!!"));
                     return true;
@@ -404,7 +398,7 @@ public class ClanCommand implements CommandExecutor {
                     }
 
                     if (strings[1].length() > 12) {
-                        pl.sendMessage(p, "The maximum chracters for a tag is 12!");
+                        pl.sendMessage(p, "The maximum characters for a tag is 12!");
                         return true;
                     }
 
@@ -493,7 +487,7 @@ public class ClanCommand implements CommandExecutor {
                 String clan = pl.getClansManager().getClan(p.getName());
 
                 if (pl.gameMode) {
-                    pl.sendMessage(p, "This command is disbaled on in-game severs. Use it in the anni lobby!");
+                    pl.sendMessage(p, "This command is disabled on in-game severs. Use it in the anni lobby!");
                     return true;
                 }
 
@@ -506,17 +500,17 @@ public class ClanCommand implements CommandExecutor {
 
                     pl.sendMessage(p, "MOTD Purchase");
                     p.sendMessage("");
-                    pl.sendMessage(p, "MOTD: &e" + pl.getFinalArg(strings));
+                    pl.sendMessage(p, "MOTD: &e" + pl.getFinalArg(strings, 1));
                     pl.sendMessage(p, "Price: &e5000");
-                    disband.put(p.getName(), "motd_" + pl.getFinalArg(strings) + "-" + "5000");
+                    disband.put(p.getName(), "motd_" + pl.getFinalArg(strings, 1) + "-" + "5000");
                     setTimer(p);
                     return true;
                 } else {
                     pl.sendMessage(p, "MOTD Update");
                     p.sendMessage("");
-                    pl.sendMessage(p, "MOTD: &e" + pl.getFinalArg(strings));
+                    pl.sendMessage(p, "MOTD: &e" + pl.getFinalArg(strings, 1));
                     pl.sendMessage(p, "Price: Free");
-                    disband.put(p.getName(), "motd_" + pl.getFinalArg(strings) + "-" + "0");
+                    disband.put(p.getName(), "motd_" + pl.getFinalArg(strings, 1) + "-" + "0");
                     setTimer(p);
                     return true;
                 }
@@ -564,7 +558,6 @@ public class ClanCommand implements CommandExecutor {
     private void sendClan(Player p, Clan c, String tag, String motd, String clan, boolean info) {
         p.sendMessage(ChatColor.AQUA + "===================================");
         p.sendMessage(pl.translate("&7Name: &e" + pl.getClansManager().getRealName(clan) + "\n" +
-                "&7Total Members: &e" + pl.getClansManager().getTotalMembers(clan) + "\n" +
                 "&7Tag: " + tag));
 
         if (!info)
@@ -572,13 +565,14 @@ public class ClanCommand implements CommandExecutor {
 
         p.sendMessage(pl.translate(
                 "&7Slots used: &e" + pl.getClansManager().getTotalMembers(clan) + "&7/&e"
-                        + pl.getClansManager().getSlots(clan)) + "\n" +
-                "&6Clan Coins: " + c.getCoins() + "\n" +
-                "&dClan Score: " + c.getScore());
+                        + pl.getClansManager().getSlots(clan) + "\n" +
+                        "&7Coins/Score: &b" + c.getCoins() + "&7/&b" + c.getScore()));
         p.sendMessage(ChatColor.YELLOW + "------------------------------");
-        p.sendMessage(pl.translate("&eCreator: &c" + c.getOwner() + "\n"
-                + "&9Officers: &6" + SQLArray.convertToStringView(c.getOfficers())) + "\n" +
-                "&7Members: &a" + SQLArray.convertToStringView(c.getMembers()));
+        p.sendMessage(pl.translate(
+                "&7Total Members: &e" + pl.getClansManager().getTotalMembers(clan) + "\n" +
+                        "&eCreator: &c" + c.getOwner() + "\n"
+                        + "&9Officers: &6" + SQLArray.convertToStringView(c.getOfficers()) + "\n" +
+                        "&7Members: &a" + SQLArray.convertToStringView(c.getMembers())));
         p.sendMessage(ChatColor.AQUA + "===================================");
     }
 

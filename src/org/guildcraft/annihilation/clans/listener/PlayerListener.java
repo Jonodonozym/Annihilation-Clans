@@ -135,7 +135,7 @@ public class PlayerListener implements Listener {
 
                 plugin.getClansManager().createClan(name, p);
                 plugin.sendMessage(p, "&aCreated clan &7" + name
-                        + " &a. &7Invite players with &e/clan invite <player>");
+                        + "&a. &7Invite players with &e/clan invite <player>");
                 plugin.sendMessage(p, "&aYou are moved to the group &e&lOWNER &aof the clan &7" + name);
                 ExperienceManager.getInstance().removeXP(p, price);
                 plugin.sendMessage(p, "Removed &b" + price + "XP &7from your Annihilation Wallet.");

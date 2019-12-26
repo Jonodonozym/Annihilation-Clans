@@ -26,6 +26,7 @@ public class ClanChatListener implements Listener {
         Player p = e.getPlayer();
         String clan = plugin.getClansManager().getClan(p.getName());
         plugin.getChatManager().sendChatMessageToClan(p.getName(), clan, e.getMessage());
+        e.setCancelled(true);
     }
 
     @EventHandler
