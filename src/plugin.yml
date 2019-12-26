@@ -1,6 +1,6 @@
 name: Clans
 author: Arjenpro
-version: 0.1
+version: 1.0
 main: org.guildcraft.annihilation.clans.Clans
 commands:
     clan:

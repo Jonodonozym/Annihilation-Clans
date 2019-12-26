@@ -2,6 +2,8 @@ package org.guildcraft.annihilation.clans;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.guildcraft.annihilation.clans.bungee.ChatManager;
 import org.guildcraft.annihilation.clans.command.ClanCommand;
@@ -112,6 +114,15 @@ public class Clans extends JavaPlugin {
         blocked = getConfig().getStringList("blockedwords");
 
         System.out.println("[Clans] Clans is now ready to use!");
+    }
+
+    public String translate(String text) {
+        return ChatColor.translateAlternateColorCodes('&',
+                "&7" + text);
+    }
+
+    public void sendMessage(Player player, String msg) {
+        player.sendMessage(translate("&f[&bClans&f] &7" + msg));
     }
 
     private void registerListeners() {

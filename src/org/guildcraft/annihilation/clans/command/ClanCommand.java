@@ -40,7 +40,7 @@ public class ClanCommand implements CommandExecutor {
             String clan = "None";
             String clanName = "None";
             Clan c = null;
-            String tag = ChatColor.YELLOW + "None " + ChatColor.GRAY + "(You can buy one in the /clan shop)";
+            String tag = pl.translate("&eNone &7(You can buy one in the /clan shop)");
             String motd = tag;
 
             if (pl.getClansManager().hasClan(p.getName())) {
@@ -57,18 +57,19 @@ public class ClanCommand implements CommandExecutor {
 
                 if (!c.getMotd().equals("null")) {
                     System.out.print("Setting motd");
-                    motd = ChatColor.YELLOW + c.getMotd().replaceAll("&", "§");
+                    motd = ChatColor.DARK_AQUA + c.getMotd();
                 }
             }
 
-            p.sendMessage(ChatColor.YELLOW + "Clans v0.1 ALPHA");
+            p.sendMessage(ChatColor.YELLOW + "Clans v1.0 BETA");
             p.sendMessage("");
+            pl.sendMessage(p, "&aYour current clan:");
             p.sendMessage(ChatColor.GREEN + "Your current clan: " + ChatColor.GRAY + clanName);
 
             if (!clan.equals("None"))
                 sendClan(p, c, tag, motd, clan, false);
             else
-                p.sendMessage(ChatColor.BLUE + "You can make a clan by doing /clan create or joining an existing one!");
+                pl.sendMessage(p, "&9You can make a clan by doing /clan create or joining an existing one!");
             return true;
         }
 
@@ -84,24 +85,19 @@ public class ClanCommand implements CommandExecutor {
 
                 case "disband":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     String clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().getOwner(clan).toLowerCase().equals(p.getName().toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " +
-                                ChatColor.GRAY + "You have to be the rank "
-                                + ChatColor.YELLOW + "" + ChatColor.BOLD + "OWNER " + ChatColor.GRAY
-                                + "in order to disband to clan.");
+                        pl.sendMessage(p, "You have to be the rank &4OWNER &7in order to disband the clan");
                         return true;
                     }
 
                     if (pl.gameMode) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "This command is disabled in game servers. Use it in the anni lobby!");
+                        pl.sendMessage(p, "This command is disabled on in-game servers. Use it in the anni lobby!");
                         return true;
                     }
 
@@ -112,42 +108,35 @@ public class ClanCommand implements CommandExecutor {
 
                 case "members":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
                     Clan c = pl.getLocalClanManager().getLocalData(clan);
 
-                    p.sendMessage(ChatColor.YELLOW + "Creator: " + ChatColor.RED + c.getOwner());
-                    p.sendMessage(ChatColor.BLUE + "Officers: "
-                            + ChatColor.GOLD
-                            + SQLArray.convertToStringView(c.getOfficers()).replaceAll(",", ", "));
-                    p.sendMessage(ChatColor.GRAY + "Members: "
-                            + ChatColor.GREEN
-                            + SQLArray.convertToStringView(c.getMembers()).replaceAll(",", ", "));
+                    p.sendMessage(pl.translate("&eCreator: &c" + c.getOwner()));
+                    p.sendMessage(pl.translate("&9Officers: &6"
+                            + SQLArray.convertToStringView(c.getOfficers()).replaceAll(",", ", ")));
+                    p.sendMessage(pl.translate("&7Members: &a"
+                            + SQLArray.convertToStringView(c.getMembers()).replaceAll(",", ", ")));
                     return true;
 
                 case "shop":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     if (pl.gameMode) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "This command is disabled in game servers. Use it in the anni lobby!");
+                        pl.sendMessage(p, "This command is disabled on in-game servers. Use it in the anni lobby!");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().isOfficer(clan, p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be the rank " + ChatColor.GREEN + "OFFICER " +
-                                ChatColor.GRAY + "or higher to do this.");
+                        pl.sendMessage(p, "You have to be the rank &aOFFICER &7or higher to do this.");
                         return true;
                     }
 
@@ -156,50 +145,43 @@ public class ClanCommand implements CommandExecutor {
 
                 case "chat":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     if (chatMode.contains(p)) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " +
-                                ChatColor.GRAY + "Disabled channel " + ChatColor.YELLOW + "CLAN"
-                                + ChatColor.GRAY + ". You are now chatting in " + ChatColor.YELLOW + "PUBLIC");
+                        pl.sendMessage(p, "Disabled channel &eCLAN&7. You are now chatting in &ePUBLIC");
                         chatMode.remove(p);
                         return true;
                     } else {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Enabled channel "
-                                + ChatColor.YELLOW + "CLAN");
+                        pl.sendMessage(p, "Enabled channel &eCLAN");
                         chatMode.add(p);
                         return true;
                     }
 
                 case "leave":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
                     if (pl.getClansManager().getOwner(clan) == null) {
                         pl.getClansManager().setClan(p.getName(), "null");
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You left the clan.");
+                        pl.sendMessage(p, "You left the clan.");
                         return true;
                     }
 
                     if (pl.getClansManager().getOwner(clan).toLowerCase().equalsIgnoreCase(p.getName().toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "As the leader of the clan, you can't leave. Use "
-                                + ChatColor.YELLOW + "/clan disband " + ChatColor.GRAY + "to disband your clan.");
+                        pl.sendMessage(p, "As the leader of the clan, you can't leave. " +
+                                "Use &e/clan disband &7to disband your clan.");
                         return true;
                     }
 
                     pl.getClansManager().leaveClan(clan, p.getName());
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You left the clan.");
+                    pl.sendMessage(p, "You left the clan.");
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
-                            ChatColor.GRAY + "The player " + ChatColor.YELLOW + p.getName()
-                                    + ChatColor.GRAY + " §7 has left the clan.");
+                            pl.translate("&7The player &e" + p.getName() + " &7has left the clan."));
                     return true;
             }
         } else if (strings.length == 2) {
@@ -211,32 +193,30 @@ public class ClanCommand implements CommandExecutor {
                     String tojoin = strings[1];
 
                     if (pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You're already member of a clan.");
+                        pl.sendMessage(p, "You're already a member of a clan.");
                         return true;
                     }
 
                     if (pl.getClansManager().getClanCoins(tojoin) == -1) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "That clan doesn't exist");
+                        pl.sendMessage(p, "That clan doesn't exist!");
                         return true;
                     }
 
                     if (!pl.getClansManager().isInvited(p.getName(), tojoin)) {
                         System.out.print(pl.getLocalClanManager().getLocalData(tojoin).toString());
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You are not invited to this clan!");
+                        pl.sendMessage(p, "You are not invited to this clan!");
                         return true;
                     }
 
                     pl.getClansManager().joinClan(tojoin, p);
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You are now part of the clan "
-                            + ChatColor.YELLOW + tojoin);
+                    pl.sendMessage(p, "You are now part of the clan &e" + tojoin);
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", tojoin.toLowerCase(),
-                            ChatColor.GRAY + "The player " + ChatColor.YELLOW + p.getName()
-                                    + ChatColor.GRAY + " joined the clan.");
+                            pl.translate("&7The player &e" + p.getName() + " &7joined the clan."));
                     return true;
 
                 case "info":
                     if (!pl.getClansManager().hasClan(strings[1])) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + strings[1] + " is not a valid clan!");
+                        pl.sendMessage(p, strings[1] + " is not a valid clan!");
                         return true;
                     }
 
@@ -244,72 +224,61 @@ public class ClanCommand implements CommandExecutor {
                     Clan c = pl.getLocalClanManager().getLocalData(clan);
 
                     if (c == null) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "NPE error occurred. Please report this to the developers (code:18)");
+                        pl.sendMessage(p, "NPE error occured. Please report this to the developers (code:18)");
                         return true;
                     }
 
+                    pl.sendMessage(p, "Searching data for clan [&e" + pl.getClansManager().getRealName(clan) + "&7]");
                     String tag = c.getTag().equals("null") ? ChatColor.YELLOW + "None" : c.getTag();
-                    p.sendMessage(ChatColor.BLUE + "Clans> "
-                            + ChatColor.GRAY + "Searching data for clan ["
-                            + ChatColor.YELLOW + pl.getClansManager().getRealName(clan) + ChatColor.GRAY + "]");
-
                     sendClan(p, c, tag, "", clan, true);
                     return true;
 
                 case "invite":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().isOfficer(clan, p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be the rank " + ChatColor.GREEN + "OFFICER " +
-                                ChatColor.GRAY + "or higher to do this.");
+                        pl.sendMessage(p, "You have to be the rank &aOFFICER &7or higher to do this.");
                         return true;
                     }
 
                     if (pl.getClansManager().isInvited(strings[1], clan)) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "This player is already invited.");
+                        pl.sendMessage(p, "This player is already invited.");
                         return true;
                     }
 
                     if (pl.getClansManager().hasClan(strings[1])) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "That player is already in a clan");
+                        pl.sendMessage(p, "That player is already in a clan!");
                         return true;
                     }
 
                     if (strings[1].length() > 16) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + strings[1] + " is not a valid clan!");
+                        pl.sendMessage(p, strings[1] + " is not a valid clan!");
                         return true;
                     }
 
                     if (pl.getClansManager().getSlots(clan) == pl.getClansManager().getTotalMembers(clan)) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You cannot invite members anymore. " +
-                                "You can buy more slots in the shop " + ChatColor.YELLOW + "/clan shop");
+                        pl.sendMessage(p, "You cannot invite members anymore. " +
+                                "You can buy more slots in the shop &e/clan shop");
                         return true;
                     }
 
                     pl.getClansManager().invitePlayerToClan(clan, strings[1]);
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Invited player " +
-                            "" + ChatColor.YELLOW + strings[1] + ChatColor.GRAY + ". They have to join with "
-                            + ChatColor.YELLOW + "/clan join " + pl.getClansManager().getRealName(clan));
+                    pl.sendMessage(p, "Invited player &e" + strings[1] + " &7. " +
+                            "They have to join with &e/clan join" + pl.getClansManager().getRealName(clan));
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
-                            ChatColor.GRAY + "The player " + ChatColor.YELLOW + p.getName()
-                                    + ChatColor.GRAY + " invited" + ChatColor.YELLOW + strings[1]);
+                            pl.translate("&7The player &e" + p.getName() + " &7invited &e" + strings[1]));
 
-                    pl.getChatManager().sendMessage(strings[1], "claninvite_"
-                            + pl.getClansManager().getRealName(clan));
+                    pl.getChatManager().sendMessage(strings[1], "claninvite_" + pl.getClansManager().getRealName(clan));
                     return true;
 
                 case "chat":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
@@ -319,235 +288,202 @@ public class ClanCommand implements CommandExecutor {
 
                 case "promote":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().isOfficer(clan, p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be the rank " + ChatColor.GREEN + "OFFICER " +
-                                ChatColor.GRAY + "or higher to do this.");
+                        pl.sendMessage(p, "You have to be the rank &aOFFICER &7or higher to do this.");
                         return true;
                     }
 
                     if (!pl.getClansManager().getMembersLS(clan).contains(strings[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "That player isn't in your clan");
+                        pl.sendMessage(p, "That player isn't in your clan!");
                         return true;
                     }
 
                     pl.getClansManager().promote(clan, strings[1]);
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Promoted player " +
-                            ChatColor.YELLOW + strings[1] + ChatColor.GRAY + " to rank " + ChatColor.GREEN + "OFFICER");
-
+                    pl.sendMessage(p, "Promoted player &e" + strings[1] + " &7to rank &aOFFICER");
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
-                            ChatColor.GRAY + "The player " + strings[1] + " has been promoted to " +
-                                    ChatColor.GREEN + "OFFICER");
+                            pl.translate("&7The player " + strings[1] + " has been promoted to &aOFFICER"));
                     return true;
 
                 case "demote":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().isOfficer(clan, p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be the rank " + ChatColor.GREEN + "OFFICER " +
-                                ChatColor.GRAY + "or higher to do this.");
+                        pl.sendMessage(p, "You have to be the rank &aOFFICER &7or higher to do this.");
                         return true;
                     }
 
                     if (!pl.getClansManager().getMembersLS(clan).contains(strings[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "That player isn't in your clan");
+                        pl.sendMessage(p, "That player isn't in your clan1");
                         return true;
                     }
 
                     pl.getClansManager().demote(clan, strings[1]);
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Demoted player "
-                            + ChatColor.YELLOW + strings[1] + ChatColor.GRAY + " to rank " + ChatColor.GOLD + "MEMBER");
-
+                    pl.sendMessage(p, "Demoted player &e" + strings[1] + " &7to rank &6MEMBER");
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
-                            ChatColor.GRAY + "The player " + strings[1] + " has been demoted to "
-                                    + ChatColor.GOLD + "MEMBER");
+                            pl.translate("&7The player " + strings[1] + " has been demoted to &6MEMBER"));
                     return true;
 
                 case "kick":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().isOfficer(clan, p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be the rank " + ChatColor.GREEN + "OFFICER " +
-                                ChatColor.GRAY + "or higher to do this.");
+                        pl.sendMessage(p, "You have to be the rank &aOFFICER &7or higher to do this.");
                         return true;
                     }
 
                     if (!pl.getClansManager().getMembersLS(clan).contains(strings[1].toLowerCase())
                             && !pl.getClansManager().getOfficersLS(clan).contains(strings[1].toLowerCase())
                             && !pl.getClansManager().getOwner(clan).toLowerCase().equals(strings[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "This player isn't member of your clan.");
+                        pl.sendMessage(p, "This player isn't a member of your clan!");
                         return true;
                     }
 
                     if (pl.getClansManager().isOfficer(clan, strings[1])) {
                         if (!pl.getClansManager().getOwner(clan).toLowerCase().equals(p.getName().toLowerCase())) {
-                            p.sendMessage(ChatColor.BLUE + "Clans> " +
-                                    ChatColor.GRAY + "You have to be the rank " + ChatColor.YELLOW + "OWNER"
-                                    + ChatColor.GRAY + " to kick officers.");
+                            pl.sendMessage(p, "You have to be the rank &4OWNER &7in order to kick officers.");
                             return true;
                         }
                     }
 
                     if (pl.getClansManager().getOwner(clan).toLowerCase().equalsIgnoreCase(strings[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You cannot kick the owner dumb ass!");
+                        pl.sendMessage(p, "You cannot kick the owner noob!");
                         return true;
                     }
 
                     pl.getClansManager().kickPlayer(clan, strings[1]);
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "The player " + strings[1]
-                            + " has been kicked from your clan.");
+                    pl.sendMessage(p, "The player " + strings[1] + " has been kicked from your clan.");
 
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
-                            ChatColor.GRAY + "The player " + strings[1] + " has been kicked.");
+                            pl.translate("&7The player " + strings[1] + " has been kicked."));
 
                     pl.getChatManager().sendMessage(strings[1],
-                            ChatColor.DARK_RED + "!! " + ChatColor.YELLOW
-                                    + "You have been kicked from your clan " + ChatColor.DARK_RED + "!!");
+                            pl.translate("&4!! &eYou have been kicked from your clan &4!!"));
                     return true;
 
                 case "tag":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     if (pl.gameMode) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "This command is disabled in game servers. Use it in the anni lobby!");
+                        pl.sendMessage(p, "This command is disabled on in-game servers. Use it in the anni lobby!");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().getOwner(clan).toLowerCase().equals(p.getName().toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You have to be the rank " +
-                                ChatColor.YELLOW + "OWNER" + ChatColor.GRAY + " to purchase a tag.");
+                        pl.sendMessage(p, "You have to be the rank &eOWNER &7to purchase a tag.");
                         return true;
                     }
 
                     if (pl.getClansManager().getClanCoins(clan) < 10000) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You do not have enough Clan Coins to purchase this. \n" +
-                                ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Price: " + ChatColor.YELLOW + "10000 Clan Coins");
+                        pl.sendMessage(p, "You do not have enough Clan Coins to purchase this.");
+                        pl.sendMessage(p, "Price: &e10000 Clan Coins");
                         return true;
                     }
 
                     for (String blocked : pl.blocked) {
                         if (blocked.equalsIgnoreCase(strings[1])
                                 || strings[1].toLowerCase().contains(blocked.toLowerCase())) {
-                            p.sendMessage(ChatColor.BLUE + "Clans> "
-                                    + ChatColor.GRAY + "The word `" + ChatColor.YELLOW + strings[1]
-                                    + ChatColor.GRAY + "` is blocked");
+                            pl.sendMessage(p, "The word `&e" + strings[1] + "&7` is blocked!");
                             return true;
                         }
                     }
 
                     if (strings[1].length() > 12) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "The maximum characters for a tag is 12");
+                        pl.sendMessage(p, "The maximum chracters for a tag is 12!");
                         return true;
                     }
 
-                    if (strings[1].toLowerCase().contains("&".toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You can't use colors in your tag");
+                    if (strings[1].toLowerCase().contains("&")) {
+                        pl.sendMessage(p, "You can't use color codes in your tag!");
                         return true;
                     }
 
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Tag purchase");
+                    pl.sendMessage(p, "Tag Purchase");
                     p.sendMessage("");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Tag: [" + strings[1] + "]");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Price: " + ChatColor.YELLOW + "10000");
+                    pl.sendMessage(p, "Tag: [" + strings[1] + "]");
+                    pl.sendMessage(p, "Price: &e10000");
                     disband.put(p.getName(), "tag_" + strings[1] + "-" + "10000");
                     setTimer(p);
                     return true;
 
                 case "transfer":
                     if (!pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You have to be member of a clan to do this.");
+                        pl.sendMessage(p, "You have to be a member of a clan to do this.");
                         return true;
                     }
 
                     if (pl.gameMode) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "This command is disabled in game servers. Use it in the anni lobby!");
+                        pl.sendMessage(p, "This command is disabled on in-game servers. Use it in the anni lobby!");
                         return true;
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
 
                     if (!pl.getClansManager().getOwner(clan).toLowerCase().equals(p.getName().toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You have to be the rank "
-                                + ChatColor.YELLOW + "OWNER" + ChatColor.GRAY + " §7 to transfer the leadership");
+                        pl.sendMessage(p, "You have to be the rank &eOWNER &7to transfer the leadership.");
                         return true;
                     }
 
                     if (!pl.getClansManager().getMembers(clan).contains(strings[1].toLowerCase())
                             && !pl.getClansManager().getOfficers(clan).contains(strings[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "That player isn't in your clan");
+                        pl.sendMessage(p, "That player isn't in your clan!");
                         return true;
                     }
 
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Clan Leadership Transfer");
+                    pl.sendMessage(p, "Clan LeaderShip Transfer");
                     p.sendMessage("");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Transfer to: [" + strings[1] + "]");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Price: " + ChatColor.YELLOW + "N/A");
+                    pl.sendMessage(p, "Transfer to: [" + strings[1] + "]");
                     disband.put(p.getName(), "transfer_" + strings[1] + "-" + clan.toLowerCase());
                     setTimer(p);
                     return true;
 
                 case "create":
                     if (pl.getClansManager().hasClan(p.getName())) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "You're already member of a clan.");
+                        pl.sendMessage(p, "You're already a member of a clan!");
                         return true;
                     }
 
                     String create = strings[1];
 
                     if (pl.gameMode) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "This command is disabled in game servers. Use it in the anni lobby!");
+                        pl.sendMessage(p, "This command is disabled on in-game servers. Use it in the anni lobby!");
                         return true;
                     }
 
                     if (pl.getLocalClanManager().hasLocalData(create)) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + create + " is already a clan!");
+                        pl.sendMessage(p, create + " is already a clan!");
                         return true;
                     }
 
                     if (ExperienceManager.getInstance().getXP(p) < 5000) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "You do not have enough XP to purchase this. " +
-                                ChatColor.YELLOW + "NEEDED: 5000XP");
+                        pl.sendMessage(p, "You do not have enough XP to purchase this. &eNEEDED: 5000XP");
                         return true;
                     }
 
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Clan create");
+                    pl.sendMessage(p, "Clan Create");
                     p.sendMessage("");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Name: " + ChatColor.YELLOW + create);
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Price: " + ChatColor.AQUA + "5000XP");
+                    pl.sendMessage(p, "Name: &e" + create);
+                    pl.sendMessage(p, "Price: &b5000XP");
                     disband.put(p.getName(), "create_" + strings[1] + "-" + "5000");
                     setTimer(p);
                     return true;
@@ -560,8 +496,7 @@ public class ClanCommand implements CommandExecutor {
 
             if (strings[0].equalsIgnoreCase("chat")) {
                 if (!pl.getClansManager().hasClan(p.getName())) {
-                    p.sendMessage(ChatColor.BLUE + "Clans> "
-                            + ChatColor.GRAY + "You have to be member of a clan to use this.");
+                    pl.sendMessage(p, "You have to be a member of a clan to do this.");
                     return true;
                 }
 
@@ -572,33 +507,29 @@ public class ClanCommand implements CommandExecutor {
                 String clan = pl.getClansManager().getClan(p.getName());
 
                 if (pl.gameMode) {
-                    p.sendMessage(ChatColor.BLUE + "Clans> "
-                            + ChatColor.GRAY + "This command is disabled in game servers. Use it in the anni lobby!");
+                    pl.sendMessage(p, "This command is disbaled on in-game severs. Use it in the anni lobby!");
                     return true;
                 }
 
                 if (pl.getClansManager().getMOTD(clan).equals("null")) {
                     if (pl.getClansManager().getClanCoins(clan) < 5000) {
-                        p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY
-                                + "You do not have enough Clan Coins to purchase this. " + ChatColor.BLUE + "Clans> "
-                                + ChatColor.GRAY + "Price: " + ChatColor.YELLOW + "5000 Clan Coins");
+                        pl.sendMessage(p, "You do not have enough Clan Coins to purchase this.");
+                        pl.sendMessage(p, "Price: &e5000 Clan Coins");
                         return true;
                     }
 
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "MOTD purchase");
+                    pl.sendMessage(p, "MOTD Purchase");
                     p.sendMessage("");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "MOTD: "
-                            + ChatColor.YELLOW + getFinalArg(strings) + "");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Price: " + ChatColor.YELLOW + "5000");
+                    pl.sendMessage(p, "MOTD: &e" + getFinalArg(strings));
+                    pl.sendMessage(p, "Price: &e5000");
                     disband.put(p.getName(), "motd_" + getFinalArg(strings) + "-" + "5000");
                     setTimer(p);
                     return true;
                 } else {
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "MOTD Update");
+                    pl.sendMessage(p, "MOTD Update");
                     p.sendMessage("");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "MOTD: "
-                            + ChatColor.YELLOW + getFinalArg(strings) + "");
-                    p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Price: " + ChatColor.YELLOW + "Free");
+                    pl.sendMessage(p, "MOTD: &e" + getFinalArg(strings));
+                    pl.sendMessage(p, "Price: Free");
                     disband.put(p.getName(), "motd_" + getFinalArg(strings) + "-" + "0");
                     setTimer(p);
                     return true;
@@ -626,67 +557,65 @@ public class ClanCommand implements CommandExecutor {
 
     private void helpMenu(Player p, boolean hasClan) {
         if (hasClan) {
-            p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Clans Help");
-            p.sendMessage("");
-            p.sendMessage(ChatColor.YELLOW + "/clan " + ChatColor.GRAY + "- Display clan information");
-            p.sendMessage(ChatColor.YELLOW + "/clan members " + ChatColor.GRAY + "- View the members of your clan");
-            p.sendMessage(ChatColor.YELLOW + "/clan leave " + ChatColor.GRAY + " Leave your current clan");
-            p.sendMessage(ChatColor.YELLOW + "/clan disband " + ChatColor.GRAY + "- Disband your current clan");
-            p.sendMessage(ChatColor.YELLOW + "/clan shop " + ChatColor.GRAY + "- Open the Clan shop");
-            p.sendMessage(ChatColor.YELLOW + "/clan chat " + ChatColor.GRAY + "- Enable chat mode channel CLAN");
-            p.sendMessage("");
-            p.sendMessage(ChatColor.YELLOW + "/clan join <clan> " + ChatColor.GRAY + "- Join a clan (you must be invited)");
-            p.sendMessage(ChatColor.YELLOW + "/clan invite <player> " + ChatColor.GRAY + "- Invite a player to your clan");
-            p.sendMessage(ChatColor.YELLOW + "/clan kick <player> " + ChatColor.GRAY + "- Kick a player from your clan");
-            p.sendMessage(ChatColor.YELLOW + "/clan promote <player> " + ChatColor.GRAY + "- Promote a player in your clan");
-            p.sendMessage(ChatColor.YELLOW + "/clan info <player> " + ChatColor.GRAY + "- View a player's clan information");
-            p.sendMessage(ChatColor.YELLOW + "/clan transfer <player> " + ChatColor.GRAY + "- Transfer your clan's leadership");
-            p.sendMessage(ChatColor.YELLOW + "/clan create <name> " + ChatColor.GRAY + "- Create a clan");
+            p.sendMessage(pl.translate(
+                    "&e&lClans Help\n"
+                            + "\n"
+                            + "&e/clan &7- Display clan information\n"
+                            + "&e/clan members &7- View the members of your clan\n"
+                            + "&e/clan leave &7- Leave your current clan\n"
+                            + "&e/clan disband &7- Disband your current clan\n"
+                            + "&e/clan shop &7- Open the Clan Shop\n"
+                            + "&e/clan chat &7- Enable chat mode channel: CLAN\n"
+                            + "\n"
+                            + "&e/clan join <clan> &7- Join a clan (you must be invited)\n"
+                            + "&e/clan invite <player> &7- Invite a player to your clan\n"
+                            + "&e/clan kick <player> &7- Kick a player from your clan\n"
+                            + "&e/clan promote <player> &7- Promote a player in your clan\n"
+                            + "&e/clan demote <player> &7- Demote a player in your clan\n"
+                            + "&e/clan info <player> &7- View a player's clan information\n"
+                            + "&e/clan transfer <player> &7- Transfer your clan's leadership\n"
+                            + "&e/clan create <name> &7- Create a clan"));
         } else {
-            p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Clans help");
-            p.sendMessage("");
-            p.sendMessage(ChatColor.YELLOW + "/clan " + ChatColor.GRAY + "- Display clan information");
-            p.sendMessage("");
-            p.sendMessage(ChatColor.YELLOW + "/clan join <clan> " + ChatColor.GRAY + "- Join a clan (you must be invited)");
-            p.sendMessage(ChatColor.YELLOW + "/clan info <player> " + ChatColor.GRAY + "- View a player's clan information");
-            p.sendMessage(ChatColor.YELLOW + "/clan create <name> " + ChatColor.GRAY + "- Create a clan");
+            p.sendMessage(pl.translate(
+                    "&e&lClans Help\n"
+                            + "\n"
+                            + "&e/clan &7- Display clan information\n"
+                            + "\n"
+                            + "&e/clan join <clan> &7- Join a clan (you must be invited)\n"
+                            + "&e/clan info <player> &7- View a player's clan information\n"
+                            + "&e/clan create <name> &7- Create a clan."));
         }
     }
 
     private void sendClan(Player p, Clan c, String tag, String motd, String clan, boolean info) {
         p.sendMessage(ChatColor.AQUA + "===================================");
-        p.sendMessage(ChatColor.GRAY + "Name: " + ChatColor.YELLOW + pl.getClansManager().getRealName(clan));
-        p.sendMessage(ChatColor.GRAY + "Total members: " + ChatColor.YELLOW
-                + pl.getClansManager().getTotalMembers(clan));
-        p.sendMessage(ChatColor.GRAY + "Tag: " + tag);
+        p.sendMessage(pl.translate("&7Name: &e" + pl.getClansManager().getRealName(clan) + "\n" +
+                "&7Total Members: &e" + pl.getClansManager().getTotalMembers(clan) + "\n" +
+                "&7Tag: " + tag));
 
         if (!info)
-            p.sendMessage(ChatColor.GRAY + "MOTD: " + ChatColor.translateAlternateColorCodes('&', motd));
+            p.sendMessage(ChatColor.GRAY + "MOTD: " + motd);
 
-        p.sendMessage(ChatColor.GRAY + "Slots used: " + ChatColor.YELLOW
-                + pl.getClansManager().getTotalMembers(clan) + ChatColor.GRAY + "/" + ChatColor.YELLOW
-                + pl.getClansManager().getSlots(clan));
-        p.sendMessage(ChatColor.GOLD + "Clan Coins: " + c.getCoins());
-        p.sendMessage(ChatColor.LIGHT_PURPLE + "Clan Points: " + c.getPoints());
-
+        p.sendMessage(pl.translate(
+                "&7Slots used: &e" + pl.getClansManager().getTotalMembers(clan) + "&7/&e"
+                        + pl.getClansManager().getSlots(clan)) + "\n" +
+                "&6Clan Coins: " + c.getCoins() + "\n" +
+                "&dClan Points: " + c.getPoints());
         p.sendMessage(ChatColor.YELLOW + "------------------------------");
-        p.sendMessage(ChatColor.YELLOW + "Creator: " + ChatColor.RED + c.getOwner());
-        p.sendMessage(ChatColor.BLUE + "Officers: "
-                + ChatColor.GOLD + SQLArray.convertToStringView(c.getOfficers()));
-        p.sendMessage(ChatColor.GRAY + "Members: "
-                + ChatColor.GREEN + SQLArray.convertToStringView(c.getMembers()));
+        p.sendMessage(pl.translate("&eCreator: &c" + c.getOwner() + "\n"
+                + "&9Officers: &6" + SQLArray.convertToStringView(c.getOfficers())) + "\n" +
+                "&7Members: &a" + SQLArray.convertToStringView(c.getMembers()));
         p.sendMessage(ChatColor.AQUA + "===================================");
     }
 
     private void setTimer(Player p) {
         p.sendMessage("");
-        p.sendMessage(ChatColor.BLUE + "Clans> " +
-                ChatColor.YELLOW + "Are you sure? " + ChatColor.GRAY + "Type " + ChatColor.YELLOW + "YES " +
-                ChatColor.GRAY + "in the chat within 10 seconds to confirm.");
+        pl.sendMessage(p, "&eAre you sure? &7Type &eYES &7in the chat within 10 seconds to confirm.");
+
         Bukkit.getScheduler().scheduleSyncDelayedTask(pl, () -> {
             if (disband.containsKey(p.getName())) {
                 disband.remove(p.getName());
-                p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Time out. §eAborted purchase.");
+                pl.sendMessage(p, "Time out. &eAborted purchase.");
             }
         }, 20 * 10);
     }

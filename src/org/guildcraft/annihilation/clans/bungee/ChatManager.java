@@ -117,11 +117,18 @@ public class ChatManager implements PluginMessageListener {
 
                 for (Player p : plugin.getLocalClanManager().online.get(clan.toLowerCase())) {
                     if (sender.equals("SYSTEM"))
-                        p.sendMessage("§7[§aClan§7] §e" + message);
-                    else
-                        p.sendMessage("§7[§aClan§7] §a" + sender + ": §f" + message);
+                        p.sendMessage(plugin.translate("&f[&bClans&f] ") + message);
+                    else {
+                        if (Bukkit.getPlayer(sender) != null && Bukkit.getPlayer(sender).hasPermission("clan.colorchat"))
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                    "&f[&bClans&f] &a" + sender + ": &f" + message));
+                        else
+                            p.sendMessage(plugin.translate("&f[&bClans&f] &a" + sender + ": &f") + message);
+                    }
                 }
-            } else if (sub.equals("ClansInvite")) {
+            }
+
+            if (sub.equals("ClansInvite")) {
                 short len = msgin.readShort();
                 byte[] msgbytes = new byte[len];
                 msgin.readFully(msgbytes);
@@ -134,15 +141,15 @@ public class ChatManager implements PluginMessageListener {
                 if (Bukkit.getPlayer(to) != null) {// just to be sure
                     if (msg.split("_")[0].equals("claninvite")) {
                         String clan = msg.split("_")[1];
-                        TextComponent accept = new TextComponent(ChatColor.YELLOW + "HERE");
+                        TextComponent accept = new TextComponent(plugin.translate("&eHERE"));
                         accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                new ComponentBuilder(ChatColor.YELLOW + "Click to join the clan " + clan).create()));
+                                new ComponentBuilder(plugin.translate("&eClick to join the clan " + clan)).create()));
                         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan join " + clan));
 
-                        TextComponent format = new TextComponent(ChatColor.BLUE + "Clans> " +
-                                ChatColor.GRAY + "You have been invited by the clan " + ChatColor.YELLOW
-                                + clan + ChatColor.GRAY + " \n" + ChatColor.BLUE + "Clans> " + ChatColor.GRAY + "Click");
-                        TextComponent end = new TextComponent(ChatColor.GRAY + "to join the clan");
+                        TextComponent format = new TextComponent(
+                                plugin.translate("&f[&bClans&f] &7You have been invited by the clan &e" + clan
+                                        + "\n" + "&f[&bClans&f] &7Click "));
+                        TextComponent end = new TextComponent(plugin.translate("&7to join the clan"));
                         format.addExtra(accept);
                         format.addExtra(end);
 

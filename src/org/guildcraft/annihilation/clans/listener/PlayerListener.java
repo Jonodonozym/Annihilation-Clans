@@ -48,10 +48,9 @@ public class PlayerListener implements Listener {
                     .getLocalData(plugin.getClansManager().getClan(e.getPlayer().getName())).getMotd()
                     .equals("null"))
                 e.getPlayer()
-                        .sendMessage(ChatColor.BLUE + "Clan Info> "
-                                + ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&',
-                                plugin.getLocalClanManager().getLocalData(plugin.getClansManager()
-                                        .getClan(e.getPlayer().getName())).getMotd()));
+                        .sendMessage(ChatColor.BLUE + "Clan MOTD> "
+                                + ChatColor.DARK_AQUA + plugin.getLocalClanManager().getLocalData(plugin.getClansManager()
+                                .getClan(e.getPlayer().getName())).getMotd());
         }, 20 * 4);
 
         plugin.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
@@ -73,9 +72,9 @@ public class PlayerListener implements Listener {
             ClanCommand.disband.remove(p.getName());
 
             if (toDisband.equals("disband")) {
-                p.sendMessage("§9Clans> §7Removing all members from your clan.. §eProgress: 0%");
+                plugin.sendMessage(p, "Removing all members from your clan...");
                 plugin.getClansManager().disbandClan(toDisband2);
-                p.sendMessage("§9Clans> §7Disbanded your clan");
+                plugin.sendMessage(p, "Disbanded your clan!");
                 return;
             }
 
@@ -93,12 +92,8 @@ public class PlayerListener implements Listener {
                 plugin.getClansManager().removeClanCoins(Integer.parseInt(price), clan);
                 plugin.getClansManager().setTag(clan, tag);
 
-                p.sendMessage(ChatColor.BLUE + "Clans> "
-                        + ChatColor.GRAY + "Removed " + ChatColor.YELLOW + price
-                        + ChatColor.GRAY + " Clan Coins from your Clan Wallet");
-                p.sendMessage(ChatColor.BLUE + "Clans> "
-                        + ChatColor.GRAY + "Purchase complete. Your tag has been updated to " +
-                        ChatColor.YELLOW + tag);
+                plugin.sendMessage(p, "Removed &e" + price + " &7Clan Coins from your Clan Wallet");
+                plugin.sendMessage(p, "Purchase complete. Your tag has been updated to &e" + tag);
                 Clans.log(p.getName() + " bought clan tag " + tag + " for " + price + " coins");
                 return;
             }
@@ -111,11 +106,8 @@ public class PlayerListener implements Listener {
                 plugin.getClansManager().removeClanCoins(price, clan);
                 plugin.getClansManager().setMOTD(clan, motd);
 
-                p.sendMessage(ChatColor.BLUE + "Clans> "
-                        + ChatColor.GRAY + "Removed " + ChatColor.YELLOW + price +
-                        ChatColor.GRAY + " Clan Coins from your Clan Wallet");
-                p.sendMessage(ChatColor.BLUE + "Clans> " +
-                        ChatColor.GRAY + "Purchase complete. Your MOTD has been updated to " + ChatColor.YELLOW + motd);
+                plugin.sendMessage(p, "Removed &e" + price + " &7Clan Coins from your Clan Wallet");
+                plugin.sendMessage(p, "Purchase complete. Your MOTD has been updated to &e" + motd);
 
                 if (price > 0)
                     Clans.log(p.getName() + " bought clan motd " + motd + " for " + price + " coins");
@@ -126,25 +118,16 @@ public class PlayerListener implements Listener {
                 String to2 = toDisband2.split("-")[0];
                 String clan = toDisband2.split("-")[1];
 
-                p.sendMessage(ChatColor.BLUE + "Clans> " +
-                        ChatColor.GRAY + "Transferring your clan to the player " +
-                        ChatColor.YELLOW + to2);
+                plugin.sendMessage(p, "Transferring your clan to the player &e" + to2);
                 plugin.getClansManager().transfer(clan, to2);
-                p.sendMessage(ChatColor.BLUE + "Clans> " +
-                        ChatColor.GRAY + "Your clan has been transferred. The player " +
-                        ChatColor.YELLOW + to2 + " has the leadership now.");
-                p.sendMessage(ChatColor.BLUE + "Clans> " +
-                        ChatColor.GRAY + "You are now in the " + ChatColor.YELLOW + "MEMBER " +
-                        ChatColor.GRAY + "group of your clan");
+                plugin.sendMessage(p, "Your clan has been transferred. The player &e" + to2
+                        + " &7has the leadership now.");
+                plugin.sendMessage(p, "You are now in the &eMEMBER &7group of your clan.");
 
                 plugin.getChatManager().sendChatMessageToClan("SYSTEM", clan,
-                        ChatColor.GRAY + "The leadership went from "
-                                + ChatColor.YELLOW + p.getName() + ChatColor.GRAY + " to "
-                                + ChatColor.YELLOW + to2);
+                        plugin.translate("&7The leadership went from &e" + p.getName() + " &7to &e" + to2));
                 plugin.getChatManager().sendMessage(to2,
-                        ChatColor.BLUE + "Clans> " +
-                                ChatColor.GRAY + "You are now the owner of the clan "
-                                + ChatColor.YELLOW + clan);
+                        plugin.translate("&f[&bClans&f] &7You are now the owner of the clan &e" + clan));
                 return;
             }
 
@@ -153,19 +136,11 @@ public class PlayerListener implements Listener {
                 int price = Integer.parseInt(toDisband2.split("-")[1]);
 
                 plugin.getClansManager().createClan(name, p);
-                p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GREEN + "Created clan "
-                        + ChatColor.GRAY + name + ChatColor.GREEN + ". Invite members with "
-                        + ChatColor.GRAY + "/clan invite <player>");
-                p.sendMessage(ChatColor.BLUE +
-                        "Clans> " + ChatColor.GREEN + "You are moved in the group " +
-                        ChatColor.YELLOW + "" + ChatColor.BOLD + "OWNER " +
-                        ChatColor.GREEN + "of the clan " + ChatColor.GRAY + name);
-
+                plugin.sendMessage(p, "&aCreated clan &7" + name
+                        + " &a. &7Invite players with &e/clan invite <player>");
+                plugin.sendMessage(p, "&aYou are moved to the group &e&lOWNER &aof the clan &7" + name);
                 ExperienceManager.getInstance().removeXP(p, price);
-                p.sendMessage(ChatColor.BLUE + "Clans> " +
-                        ChatColor.GRAY + "Removed " + ChatColor.AQUA + price + "XP " +
-                        ChatColor.GRAY + "from your Annihilation Wallet");
-
+                plugin.sendMessage(p, "Removed &b" + price + "XP &7from your Annihilation Wallet.");
                 Clans.log(p.getName() + " created clan " + name + " for " + price + " XP");
                 return;
             }
@@ -179,11 +154,8 @@ public class PlayerListener implements Listener {
             plugin.getClansManager().removeClanCoins(price, clan);
             plugin.getClansManager().setSlots(newslots, clan);
 
-            p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY
-                    + "Removed " + ChatColor.YELLOW + price + ChatColor.GRAY + " Clan Coins from your Clan Wallet");
-            p.sendMessage(ChatColor.BLUE + "Clans> " + ChatColor.GRAY +
-                    "Purchase complete. Your slots has been updated to " + ChatColor.YELLOW + newslots);
-
+            plugin.sendMessage(p, "Removed &e" + price + " &7Clan Coins from your Clan Wallet");
+            plugin.sendMessage(p, "Purchase complete. Your slots has been updated to &e" + newslots);
             InventoryListener.getSlots().remove(p.getName());
         }
     }
