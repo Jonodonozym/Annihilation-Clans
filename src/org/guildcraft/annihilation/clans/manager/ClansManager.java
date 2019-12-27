@@ -515,14 +515,14 @@ public class ClansManager {
     public void demote(String clan, String player) {
         if (!isOfficer(clan, player)) return;
 
-        List<String> newArrayMembers = getOfficers(clan);
+        List<String> newArrayMembers = getMembers(clan);
         newArrayMembers.remove(player.toLowerCase());
 
         pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                 + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
 
-        List<String> newArrayOfficers = getMembers(clan);
-        newArrayOfficers.add(player.toLowerCase());
+        List<String> newArrayOfficers = getOfficers(clan);
+        newArrayOfficers.remove(player.toLowerCase());
 
         pl.getDatabaseManager().query("UPDATE `clans_clan` SET `officers`='"
                 + SQLArray.convertToString(newArrayOfficers) + "' WHERE `name`='" + clan.toLowerCase() + "';");

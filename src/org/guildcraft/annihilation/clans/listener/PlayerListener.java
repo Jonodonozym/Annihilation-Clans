@@ -57,12 +57,13 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
-        if (!e.getMessage().toLowerCase().equals("yes")) return;
 
         Player p = e.getPlayer();
-        e.setCancelled(true);
 
         if (ClanCommand.disband.containsKey(p.getName())) {
+            if (!e.getMessage().toLowerCase().equals("yes")) return;
+            e.setCancelled(true);
+
             String to = ClanCommand.disband.get(p.getName());
             String toDisband = to.split("_")[0];
             String toDisband2 = to.split("_")[1];
@@ -145,6 +146,9 @@ public class PlayerListener implements Listener {
         }
 
         if (InventoryListener.getSlots().containsKey(p.getName())) {
+            if (!e.getMessage().toLowerCase().equals("yes")) return;
+
+            e.setCancelled(true);
             int newslots = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[0]);
             int price = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[1]);
 
