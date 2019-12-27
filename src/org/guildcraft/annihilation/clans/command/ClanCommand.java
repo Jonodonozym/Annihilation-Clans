@@ -319,6 +319,11 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
+                    if (pl.getClansManager().getOwner(clan).toLowerCase().equalsIgnoreCase(strings[1].toLowerCase())) {
+                        pl.sendMessage(p, "You cannot demote yourself l0l");
+                        return true;
+                    }
+
                     pl.getClansManager().demote(clan, strings[1]);
                     pl.sendMessage(p, "Demoted player &e" + strings[1] + " &7to rank &6MEMBER");
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
