@@ -57,6 +57,8 @@ public class ClansManager {
         List<Player> local = pl.getLocalClanManager().online.get(clan);
         local.add(owner);
         pl.getLocalClanManager().online.put(clan, local);
+
+        // TODO ADD CLAN KITS
     }
 
     public void joinClan(String name, Player joiner) {
@@ -162,6 +164,8 @@ public class ClansManager {
 
         pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
                 ChatColor.YELLOW + "The clan has been disbanded.");
+
+        // TODO REMOVE CLAN KITS
     }
 
     public void transfer(String clan, String to) {
@@ -561,7 +565,6 @@ public class ClansManager {
 
         pl.getDatabaseManager().query("UPDATE `clans_clan` SET `members`='"
                 + SQLArray.convertToString(newArrayMembers) + "' WHERE `name`='" + clan.toLowerCase() + "';");
-
     }
 
     public int getTotalMembers(String clan) {

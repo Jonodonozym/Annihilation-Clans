@@ -48,11 +48,11 @@ public class AClanCommand implements CommandExecutor {
 
             switch (args[0].toLowerCase()) {
                 case "resetstats":
-                    pl.getClansManager().setClanScore(0, clan);
                     pl.getClansManager().setMOTD(clan, "null");
                     pl.getClansManager().setTag(clan, "null");
                     pl.getClansManager().setSlots(0, clan);
-                    pl.getClansManager().setClanCoins(0, clan);
+
+                    // TODO REMOVE CLAN KITS
 
                     sender.sendMessage(ChatColor.RED + "Successfully reset stats of " + clan);
                     break;
