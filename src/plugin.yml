@@ -8,3 +8,4 @@ commands:
     chat:
     clanchat:
       aliases: [cc]
+    aclan:
