@@ -149,15 +149,15 @@ public class PlayerListener implements Listener {
             if (!e.getMessage().toLowerCase().equals("yes")) return;
 
             e.setCancelled(true);
-            int newslots = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[0]);
+            int newSlots = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[0]);
             int price = Integer.parseInt(InventoryListener.getSlots().get(p.getName()).split("-")[1]);
 
             String clan = plugin.getClansManager().getClan(p.getName());
             plugin.getClansManager().removeClanCoins(price, clan);
-            plugin.getClansManager().setSlots(newslots, clan);
+            plugin.getClansManager().setSlots(newSlots, clan);
 
             plugin.sendMessage(p, "Removed &e" + price + " &7Clan Coins from your Clan Wallet");
-            plugin.sendMessage(p, "Purchase complete. Your slots has been updated to &e" + newslots);
+            plugin.sendMessage(p, "Purchase complete. Your slots has been updated to &e" + newSlots);
             InventoryListener.getSlots().remove(p.getName());
         }
     }

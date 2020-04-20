@@ -53,7 +53,8 @@ public class Clan {
 
     public static void addClan(String name, String owner, List<String> officers, List<String> members,
                                String tag, String motd, int coins, int points, List<String> invited, Long updated) {
-        clans.put(name, new Clan(name, owner, officers, members, tag, motd, coins, points, invited, updated));
+        if (!clans.containsKey(name))
+            clans.put(name, new Clan(name, owner, officers, members, tag, motd, coins, points, invited, updated));
     }
 
     public static Clan getClan(String name) {

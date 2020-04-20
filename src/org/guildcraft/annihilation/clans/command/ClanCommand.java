@@ -143,6 +143,7 @@ public class ClanCommand implements CommandExecutor {
                     }
 
                     clan = pl.getClansManager().getClan(p.getName());
+
                     if (pl.getClansManager().getOwner(clan) == null) {
                         pl.getClansManager().setClan(p.getName(), "null");
                         pl.sendMessage(p, "You left the clan.");
@@ -160,6 +161,34 @@ public class ClanCommand implements CommandExecutor {
                     pl.getChatManager().sendChatMessageToClan("SYSTEM", clan.toLowerCase(),
                             pl.translate("&7The player &e" + p.getName() + " &7has left the clan."));
                     return true;
+
+                case "score":
+                    clan = pl.getClansManager().getClan(p.getName());
+
+                    String clanName = pl.getLocalClanManager().getLocalData(clan).getName();
+
+                    pl.sendMessage(p, "&7Clan Score of &b" + clanName + ": &d" +
+                            pl.getClansManager().getClanScore(clanName));
+                    return true;
+
+                case "stats":
+                    clan = pl.getClansManager().getClan(p.getName());
+
+                    clanName = pl.getLocalClanManager().getLocalData(clan).getName();
+
+                    sendClan(p, Clan.getClan(clanName),
+                            pl.getClansManager().getTag(clanName), pl.getClansManager().getMOTD(clanName),
+                            pl.getClansManager().getClan(pl.getClansManager().getOwner(clanName)), false);
+                    return true;
+
+                case "coins":
+                    clan = pl.getClansManager().getClan(p.getName());
+
+                    clanName = pl.getLocalClanManager().getLocalData(clan).getName();
+
+                    pl.sendMessage(p, "&7Clan Coins of &b" + clanName + ": &d" +
+                            pl.getClansManager().getClanScore(clanName));
+                    return true;
             }
         } else if (strings.length == 2) {
             switch (strings[0].toLowerCase()) {
@@ -174,8 +203,40 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
-                    pl.sendMessage(p, "&7Clan Score of &7" + player + "'s clan: &d"
-                            + pl.getClansManager().getClanScore(pl.getClansManager().getClan(player)));
+                    String clanName = player;
+
+                    if (Clan.getClan(clanName) != null)
+                        clanName = pl.getLocalClanManager().getLocalData(clanName).getName();
+
+                    if (player.equals(clanName))
+                        pl.sendMessage(p, "&7Clan Score of &b" + player + "'s clan: &d"
+                                + pl.getClansManager().getClanScore(pl.getClansManager().getClan(player)));
+                    else
+                        pl.sendMessage(p, "&7Clan Score of &b" + clanName + ": &d" +
+                                pl.getClansManager().getClanScore(clanName));
+                    return true;
+
+                case "stats":
+                    player = strings[1];
+
+                    if (!pl.getClansManager().hasClan(player)) {
+                        pl.sendMessage(p, player + " does not have a clan!");
+                        return true;
+                    }
+
+                    clanName = player;
+
+                    if (Clan.getClan(clanName) != null)
+                        clanName = pl.getLocalClanManager().getLocalData(clanName).getName();
+
+                    if (player.equals(clanName))
+                        sendClan(p, Clan.getClan(pl.getClansManager().getClan(player)),
+                                pl.getClansManager().getTag(clanName), pl.getClansManager().getMOTD(clanName),
+                                pl.getClansManager().getClan(player), false);
+                    else
+                        sendClan(p, Clan.getClan(clanName),
+                                pl.getClansManager().getTag(clanName), pl.getClansManager().getMOTD(clanName),
+                                pl.getClansManager().getClan(pl.getClansManager().getOwner(clanName)), false);
                     return true;
 
                 case "coins":
@@ -186,8 +247,17 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
-                    pl.sendMessage(p, "&7Clan Coins of &7" + player + "'s clan: &6"
-                            + pl.getClansManager().getClanCoins(pl.getClansManager().getClan(player)));
+                    clanName = player;
+
+                    if (Clan.getClan(clanName) != null)
+                        clanName = Clan.getClan(clanName).getName();
+
+                    if (player.equals(clanName))
+                        pl.sendMessage(p, "&7Clan Coins of &7" + player + "'s clan: &6"
+                                + pl.getClansManager().getClanCoins(pl.getClansManager().getClan(player)));
+                    else
+                        pl.sendMessage(p, "&7Clan Coins of &b" + clanName + ": &d" +
+                                pl.getClansManager().getClanScore(clanName));
                     return true;
 
                 case "join":

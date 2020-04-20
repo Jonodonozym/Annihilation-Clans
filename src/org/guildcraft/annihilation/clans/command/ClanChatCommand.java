@@ -17,7 +17,7 @@ public class ClanChatCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
         if (!cmd.getName().equalsIgnoreCase("clanchat")
-                && !cmd.getName().equalsIgnoreCase("cc")) return true;
+                || !cmd.getName().equalsIgnoreCase("cc")) return true;
 
         if (!(sender instanceof Player)) {
             sender.sendMessage("You can't use this!");
